@@ -403,7 +403,6 @@ const [penIcon,setpenIcon]=useState("https://cdn3.iconfinder.com/data/icons/soci
     }
   }
   useEffect(() => {
-    fetchfiles()
     
           
     socketRef.current.on("whiteboardChangeTransmit", (data) => {
@@ -428,9 +427,7 @@ console.log(studentId);
       axios.get(configData.SERVER_URL+'classes/live-class-files/'+roomID)
       .then((res)=>{
         const data=res.data.classes
-        data.map((item)=>{
-          console.log(item.filename)
-        })
+       
        setfilessocket(data)
        
       })
@@ -442,7 +439,6 @@ console.log(studentId);
     
     return () => {
       socketRef.current.on("whiteboardFileUploadedTransmit", (data) => {
-        console.log('dATA AGYA')
         axios.get(configData.SERVER_URL+'classes/live-class-files/'+roomID)
        .then((res)=>{
         console.log(res)
@@ -518,10 +514,7 @@ console.log(studentId);
     return textPart;
 }
 
-const fetchfiles=async()=>{
 
-  
-}
   return (
     <div className="App">
         <header>
@@ -539,7 +532,8 @@ const fetchfiles=async()=>{
             zIndex:10,
             right:15,
             height:'300px',
-            bottom:150,
+            bottom:150,display:'flex',
+            flexDirection:'column'
           
         }}>
             <div style={{ 
@@ -563,6 +557,20 @@ const fetchfiles=async()=>{
     .then((res)=>{
       const data=res.data.url;
       socketRef.current.emit("whiteboardFileUploaded",data);
+      axios.get(configData.SERVER_URL+'/classes/live-class-files/'+roomID)
+      .then((res)=>{
+        setfilessocket(res.data.classes)
+      })
+      .catch((err)=>{
+        console.log(err)
+        swal.fire({
+          title:'Error',
+          icons:'error',
+        
+          text:err        
+        });
+      
+      })
     })
     .catch((err)=>{
       swal.fire({
@@ -578,10 +586,10 @@ const fetchfiles=async()=>{
 document.getElementById('fileupload').click()
   }}  >Upload</Button>
             </div>
-            <div style={{ padding: '10px' }}>
+            <div style={{ padding: '10px' ,width:'100%' ,display:'flex',flexDirection:'column',overflowY:'auto'}}>
               
                 {filessocket.length>0 &&  filessocket.map((item)=>(
-  <a className="" href={item.filename} style={{fontSize:15 ,width:'100%',padding:2}} >name</a>
+  <a className="" href={item.filename} style={{fontSize:15 ,width:'100%',padding:10}} >{extractTextFromURL(item.filename)}</a>
 
 ))}
                 {/* Add more messages as needed */}
