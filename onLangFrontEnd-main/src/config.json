@@ -1,0 +1,7 @@
+{
+  
+  "SERVER_URL": "https://localhost:3001/backend/",
+  "SERVER_URL_ASSETS": "https://localhost:3001/backend/",
+  "SOCKET_SERVER_URL": "https://localhost:3002/"
+}
+

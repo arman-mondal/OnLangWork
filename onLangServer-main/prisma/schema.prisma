@@ -1,0 +1,603 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["distinct"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model accent {
+  accentid    Int       @id @default(autoincrement())
+  accentname  String    @db.VarChar(250)
+  description String    @db.Text
+  status      Int       @default(0) @db.TinyInt
+  priority    Int       @default(999)
+  createdon   DateTime  @default(now()) @db.Timestamp(0)
+  createdby   Int
+  course      course[]
+  teacher     teacher[]
+}
+
+model admin {
+  id              Int       @id
+  fname           String    @db.VarChar(250)
+  lname           String    @db.VarChar(250)
+  role            String    @db.VarChar(25)
+  dept            String    @db.VarChar(100)
+  adm_designation String    @db.VarChar(250)
+  adm_user        String    @db.VarChar(100)
+  adm_password    String    @db.VarChar(30)
+  country         String    @default("UAE") @db.VarChar(20)
+  created_date    String    @db.VarChar(30)
+  create_by       String    @db.VarChar(100)
+  college         college[]
+  student         student[]
+  teacher         teacher[]
+}
+
+model agenda {
+  agendaid  Int      @id @default(autoincrement())
+  teacherid Int
+  slotid    Int
+  dayid     Int
+  createdon DateTime @default(now()) @db.Timestamp(0)
+  status    Int      @default(0)
+  teacher   teacher  @relation(fields: [teacherid], references: [teacherid], onDelete: Cascade, map: "agenda_ibfk_1")
+  slots     slots    @relation(fields: [slotid], references: [slotid], onDelete: Cascade, map: "agenda_ibfk_2")
+  days      days     @relation(fields: [dayid], references: [id], onDelete: Cascade, map: "agenda_ibfk_3")
+
+  @@index([dayid], map: "dayid")
+  @@index([slotid], map: "slotid")
+  @@index([teacherid], map: "teacherid")
+}
+
+/// This model has been renamed to 'Renamedclass' during introspection, because the original name 'class' is reserved.
+model Renamedclass {
+  classid          Int               @id @default(autoincrement())
+  teacherid        Int
+  courseid         Int
+  packageid        Int
+  subscriptionid   Int
+  noofstudents     Int
+  startdate        DateTime?         @db.Timestamp(0)
+  endate           DateTime?         @db.Timestamp(0)
+  remainingclasses Int
+  classstatus      Int               @default(0)
+  createdon        DateTime          @default(now()) @db.Timestamp(0)
+  createdby        Int?
+  subcriptions     subcriptions      @relation("classTosubcriptions", fields: [subscriptionid], references: [id], onUpdate: Restrict, map: "class_ibfk_1")
+  packages         packages          @relation("classTopackages", fields: [packageid], references: [packageid], onDelete: Cascade, map: "class_ibfk_2")
+  course           course            @relation("classTocourse", fields: [courseid], references: [courseid], onDelete: Cascade, map: "class_ibfk_3")
+  teacher          teacher           @relation("classToteacher", fields: [teacherid], references: [teacherid], onDelete: Cascade, map: "class_ibfk_4")
+  classassignment  classassignment[] @relation("classToclassassignment")
+  classgroups      classgroups[]     @relation("classToclassgroups")
+  classstudents    classstudents[]   @relation("classToclassstudents")
+  classtiming      classtiming[]     @relation("classToclasstiming")
+  liveclass        liveclass[]       @relation("classToliveclass")
+  recordings       recordings[]      @relation("classTorecordings")
+
+  @@index([courseid], map: "courseid")
+  @@index([packageid], map: "packageid")
+  @@index([subscriptionid], map: "subscriptionid")
+  @@index([teacherid], map: "teacherid")
+  @@map("class")
+}
+
+model classgroups {
+  classgroupid Int          @id @default(autoincrement())
+  classid      Int
+  groupid      Int
+  status       Int
+  groups       groups       @relation(fields: [groupid], references: [groupid], onDelete: Cascade, map: "classgroups_ibfk_1")
+  class        Renamedclass @relation("classToclassgroups", fields: [classid], references: [classid], onDelete: Cascade, map: "classgroups_ibfk_2")
+
+  @@index([classid], map: "classid")
+  @@index([groupid], map: "groupid")
+}
+
+model classstudents {
+  classstudentsid Int          @id @default(autoincrement())
+  classid         Int
+  studentid       Int
+  status          Int
+  student         student      @relation(fields: [studentid], references: [studentid], onDelete: Cascade, map: "classstudents_ibfk_1")
+  class           Renamedclass @relation("classToclassstudents", fields: [classid], references: [classid], onDelete: Cascade, map: "classstudents_ibfk_2")
+
+  @@index([classid], map: "classid")
+  @@index([studentid], map: "studentid")
+}
+
+model classtiming {
+  classtimingid     Int          @id @default(autoincrement())
+  classid           Int
+  slotid            Int
+  dayid             Int
+  classtimingstatus Int
+  class             Renamedclass @relation("classToclasstiming", fields: [classid], references: [classid], onUpdate: Restrict, map: "classtiming_ibfk_1")
+  slots             slots        @relation(fields: [slotid], references: [slotid], onDelete: Cascade, map: "classtiming_ibfk_2")
+  days              days         @relation(fields: [dayid], references: [id], onDelete: Cascade, map: "classtiming_ibfk_3")
+
+  @@index([classid], map: "classid")
+  @@index([dayid], map: "dayid")
+  @@index([slotid], map: "slotid")
+}
+
+model college {
+  collegeid    Int            @id @default(autoincrement())
+  collegename  String         @db.VarChar(250)
+  collegetype  String         @db.VarChar(250)
+  collegelogo  String         @default("noimg.png") @db.VarChar(250)
+  username     String         @default("no") @db.VarChar(500)
+  password     String         @default("no") @db.VarChar(500)
+  firstname    String         @db.VarChar(250)
+  lastname     String         @db.VarChar(250)
+  designation  String         @db.VarChar(250)
+  department   String         @db.VarChar(250)
+  email        String         @db.VarChar(250)
+  website      String         @db.Text
+  phone        String         @db.VarChar(250)
+  tel          String         @db.VarChar(250)
+  city         String         @db.VarChar(250)
+  postalcode   String         @db.VarChar(250)
+  country      String         @db.VarChar(250)
+  countrycode  String         @db.VarChar(250)
+  noofpackages Int
+  startdate    DateTime       @default(dbgenerated("'2023-02-01'")) @db.Date
+  accent       String         @db.VarChar(250)
+  subscription Int
+  status       Int
+  registeron   DateTime       @default(now()) @db.Timestamp(0)
+  approvedby   Int            @default(1)
+  approvedon   DateTime       @default(now()) @db.Timestamp(0)
+  lastpayment  String         @default("No Payment") @db.VarChar(250)
+  reading      Boolean
+  writing      Boolean
+  speaking     Boolean
+  listening    Boolean
+  jwt          String?        @db.Text
+  admin        admin          @relation(fields: [approvedby], references: [id], onDelete: Cascade, map: "college_ibfk_4")
+  packages     packages       @relation(fields: [subscription], references: [packageid], onDelete: Cascade, map: "college_ibfk_5")
+  groups       groups[]
+  invoices     invoices[]
+  student      student[]
+  subcriptions subcriptions[]
+  teacher      teacher[]
+
+  @@index([approvedby], map: "approvedby")
+  @@index([subscription], map: "subscription")
+}
+
+model course {
+  courseid       Int              @id @default(autoincrement())
+  coursename     String           @db.VarChar(250)
+  courseaccent   Int              @default(1)
+  description    String           @db.Text
+  createdon      DateTime         @default(now()) @db.Timestamp(0)
+  createdby      String           @db.VarChar(250)
+  status         Int
+  showfeature    Boolean          @default(true)
+  accent         accent           @relation(fields: [courseaccent], references: [accentid], onDelete: Cascade, map: "course_ibfk_1")
+  assignment     assignment[]
+  class          Renamedclass[]   @relation("classTocourse")
+  groups         groups[]
+  packages       packages[]
+  teachercourses teachercourses[]
+
+  @@index([courseaccent], map: "courseaccent")
+}
+
+model days {
+  id           Int            @id @default(autoincrement())
+  day          String         @db.VarChar(250)
+  colorcode    String         @db.VarChar(100)
+  status       Int            @default(0)
+  agenda       agenda[]
+  classtiming  classtiming[]
+  grouptimings grouptimings[]
+}
+
+model field {
+  fieldid   Int    @id @default(autoincrement())
+  fieldname String @db.VarChar(250)
+  createdon String @db.VarChar(250)
+  createdby String @db.VarChar(250)
+  status    Int
+}
+
+model groups {
+  groupid          Int             @id @default(autoincrement())
+  groupname        String          @db.VarChar(250)
+  createdby        Int
+  createdon        DateTime        @default(now()) @db.Timestamp(0)
+  packageid        Int
+  subscriptionid   Int
+  courseid         Int
+  remainingclasses Int
+  status           Int
+  approvedon       DateTime?       @db.Timestamp(0)
+  approvedby       Int?
+  subcriptions     subcriptions    @relation(fields: [subscriptionid], references: [id], onDelete: Cascade, map: "groups_ibfk_1")
+  packages         packages        @relation(fields: [packageid], references: [packageid], onDelete: Cascade, map: "groups_ibfk_2")
+  course           course          @relation(fields: [courseid], references: [courseid], onDelete: Cascade, map: "groups_ibfk_6")
+  college          college         @relation(fields: [createdby], references: [collegeid], onDelete: Cascade, map: "groups_ibfk_7")
+  classgroups      classgroups[]
+  groupstudents    groupstudents[]
+  grouptimings     grouptimings[]
+
+  @@index([courseid], map: "courseid")
+  @@index([createdby], map: "createdby")
+  @@index([packageid], map: "packageid")
+  @@index([subscriptionid], map: "subscriptionid")
+}
+
+model groupstudents {
+  groupstudentsid    Int     @id @default(autoincrement())
+  groupid            Int
+  studentid          Int
+  groupstudentstatus Int
+  groups             groups  @relation(fields: [groupid], references: [groupid], onDelete: Cascade, map: "groupstudents_ibfk_1")
+  student            student @relation(fields: [studentid], references: [studentid], onDelete: Cascade, map: "groupstudents_ibfk_2")
+
+  @@index([groupid], map: "groupid")
+  @@index([studentid], map: "studentid")
+}
+
+model grouptimings {
+  grouptimingsid Int    @id @default(autoincrement())
+  groupid        Int
+  slotid         Int
+  dayid          Int
+  slots          slots  @relation(fields: [slotid], references: [slotid], onDelete: Cascade, map: "grouptimings_ibfk_1")
+  groups         groups @relation(fields: [groupid], references: [groupid], onDelete: Cascade, map: "grouptimings_ibfk_2")
+  days           days   @relation(fields: [dayid], references: [id], onDelete: Cascade, map: "grouptimings_ibfk_3")
+
+  @@index([dayid], map: "dayid")
+  @@index([groupid], map: "groupid")
+  @@index([slotid], map: "slotid")
+}
+
+model liveclass {
+  liveclassid       Int                 @id @default(autoincrement())
+  classid           Int
+  teacherid         Int
+  uuid              String              @db.Text
+  starttime         DateTime            @default(now()) @db.Timestamp(0)
+  endtime           DateTime?           @db.Timestamp(0)
+  status            Int                 @default(0)
+  class             Renamedclass        @relation("classToliveclass", fields: [classid], references: [classid], onDelete: Cascade, map: "liveclass_ibfk_1")
+  teacher           teacher             @relation(fields: [teacherid], references: [teacherid], onDelete: Cascade, map: "liveclass_ibfk_2")
+  liveclassstudents liveclassstudents[]
+  recordings        recordings[]
+
+  @@index([classid], map: "classid")
+  @@index([teacherid], map: "teacherid")
+}
+
+model liveclassfiles {
+  fileid            Int                 @id @default(autoincrement())
+  type              String              @db.Text
+  type_id           Int
+  uuid              String              @db.Text
+  filename          String              @db.Text
+}
+
+model liveclassstudents {
+  liveclassstudentsid                    Int       @id @default(autoincrement())
+  liveclass                              Int
+  studentid                              Int
+  starttime                              DateTime  @default(now()) @db.Timestamp(0)
+  endtime                                DateTime? @db.Timestamp(0)
+  status                                 Int       @default(0)
+  liveclass_liveclassToliveclassstudents liveclass @relation(fields: [liveclass], references: [liveclassid], onUpdate: Restrict, map: "liveclassstudents_ibfk_1")
+  student                                student   @relation(fields: [studentid], references: [studentid], onDelete: Cascade, map: "liveclassstudents_ibfk_2")
+
+  @@index([liveclass], map: "liveclass")
+  @@index([studentid], map: "studentid")
+}
+
+model packages {
+  packageid    Int            @id @default(autoincrement())
+  courseid     Int
+  packageprice Float
+  packagecolor String         @db.VarChar(250)
+  status       Int            @default(1)
+  noofstudent  Int
+  noofclases   Int
+  timing       Int
+  feature1     String         @db.Text
+  feature2     String         @db.Text
+  feature3     String         @db.Text
+  feature4     String         @db.Text
+  feature5     String         @db.Text
+  feature6     String         @db.Text
+  feature7     String         @db.Text
+  feature8     String         @db.Text
+  support      Int            @db.TinyInt
+  createdby    String         @db.VarChar(250)
+  createdon    DateTime       @default(now()) @db.Timestamp(0)
+  course       course         @relation(fields: [courseid], references: [courseid], onDelete: Cascade, map: "packages_ibfk_1")
+  class        Renamedclass[] @relation("classTopackages")
+  college      college[]
+  groups       groups[]
+  subcriptions subcriptions[]
+
+  @@index([courseid], map: "course")
+}
+
+model slots {
+  slotid       Int            @id @default(autoincrement())
+  name         String         @db.VarChar(250)
+  starttime    DateTime       @db.Time(0)
+  endtime      DateTime       @db.Time(0)
+  status       Int            @default(0)
+  agenda       agenda[]
+  classtiming  classtiming[]
+  grouptimings grouptimings[]
+}
+
+model student {
+  studentid           Int                   @id @default(autoincrement())
+  firstname           String?               @db.VarChar(100)
+  lastname            String?               @db.VarChar(100)
+  email               String                @db.VarChar(250)
+  phone               String?               @db.VarChar(20)
+  image               String?               @default("noimg.png") @db.VarChar(250)
+  password            String?               @db.Text
+  username            String?               @db.VarChar(250)
+  dateofbirth         String?               @db.VarChar(250)
+  citizenship         String                @default("UK") @db.VarChar(250)
+  fieldofstudy        String?               @db.Text
+  levelofstudy        Int?
+  university          Int
+  city                String?               @db.VarChar(100)
+  country             String?               @db.VarChar(100)
+  subcription         Int
+  registeron          DateTime              @default(now()) @db.Timestamp(0)
+  approvedby          Int                   @default(1)
+  approvedon          DateTime              @default(now()) @db.Timestamp(0)
+  status              Int                   @default(0)
+  groupstatus         Int                   @default(1) @db.TinyInt
+  jwt                 String?               @db.Text
+  studylevel          studylevel?           @relation(fields: [levelofstudy], references: [levelid], onDelete: Cascade, map: "student_ibfk_2")
+  admin               admin                 @relation(fields: [approvedby], references: [id], onDelete: Cascade, map: "student_ibfk_3")
+  subcriptions        subcriptions          @relation(fields: [subcription], references: [id], onDelete: Cascade, map: "student_ibfk_4")
+  college             college               @relation(fields: [university], references: [collegeid], onDelete: Cascade, map: "student_ibfk_5")
+  classstudents       classstudents[]
+  groupstudents       groupstudents[]
+  liveclassstudents   liveclassstudents[]
+  submitedassignments submitedassignments[]
+
+  @@index([approvedby], map: "approvedby")
+  @@index([subcription], map: "course")
+  @@index([levelofstudy], map: "levelofstudy")
+  @@index([university], map: "university")
+}
+
+model studylevel {
+  levelid   Int       @id @default(autoincrement())
+  levelname String    @db.VarChar(250)
+  createdon String    @db.VarChar(250)
+  createdby String    @db.VarChar(250)
+  status    Int
+  student   student[]
+}
+
+model subcriptions {
+  id               Int            @id @default(autoincrement())
+  collegeId        Int
+  packageId        Int
+  usedslots        Int            @default(0)
+  optionmenu       Int            @default(1)
+  subscriptiondate DateTime       @default(now()) @db.Timestamp(0)
+  startdate        DateTime?      @db.Timestamp(0)
+  expirydate       DateTime?      @db.Timestamp(0)
+  approvedby       Int?
+  approvedon       DateTime?      @db.Timestamp(0)
+  college          college        @relation(fields: [collegeId], references: [collegeid], onDelete: Cascade, map: "subcriptions_ibfk_1")
+  packages         packages       @relation(fields: [packageId], references: [packageid], onDelete: Cascade, map: "subcriptions_ibfk_2")
+  class            Renamedclass[] @relation("classTosubcriptions")
+  groups           groups[]
+  invoices         invoices[]
+  student          student[]
+
+  @@index([collegeId], map: "collegeId")
+  @@index([packageId], map: "packageId")
+}
+
+model teacher {
+  teacherid              Int              @id @default(autoincrement())
+  username               String           @default("no") @db.VarChar(250)
+  password               String           @default("no") @db.VarChar(250)
+  firstname              String?          @db.VarChar(250)
+  lastname               String?          @db.VarChar(250)
+  email                  String           @db.VarChar(250)
+  phone                  String?          @db.VarChar(250)
+  accent                 Int              @default(1)
+  image                  String           @default("noimg.png") @db.VarChar(250)
+  street                 String?          @db.VarChar(250)
+  address                String?          @db.Text
+  city                   String?          @db.VarChar(250)
+  country                String?          @db.VarChar(250)
+  status                 Int              @default(1)
+  university             Int?
+  cartificate            String?          @db.Text
+  registeron             DateTime         @default(now()) @db.Timestamp(0)
+  approvedby             Int              @default(1)
+  approvedon             DateTime         @default(now()) @db.Timestamp(0)
+  jwt                    String?          @db.Text
+  admin                  admin            @relation(fields: [approvedby], references: [id], onDelete: Cascade, map: "teacher_ibfk_1")
+  accent_accentToteacher accent           @relation(fields: [accent], references: [accentid], onDelete: Cascade, map: "teacher_ibfk_2")
+  college                college?         @relation(fields: [university], references: [collegeid], onDelete: Cascade, map: "teacher_ibfk_3")
+  agenda                 agenda[]
+  assignment             assignment[]
+  class                  Renamedclass[]   @relation("classToteacher")
+  liveclass              liveclass[]
+  recordings             recordings[]
+  teachercourses         teachercourses[]
+
+  @@index([accent], map: "accent")
+  @@index([approvedby], map: "approvedby")
+  @@index([university], map: "university")
+}
+
+model teachercourses {
+  teachercoursesid     Int      @id @default(autoincrement())
+  teacherid            Int
+  courseid             Int
+  teachercoursesstatus Int
+  course               course   @relation(fields: [courseid], references: [courseid], onUpdate: Restrict, map: "teachercourses_ibfk_1")
+  teacher              teacher  @relation(fields: [teacherid], references: [teacherid], onDelete: Cascade, map: "teachercourses_ibfk_2")
+  lesson               lesson[]
+
+  @@index([courseid], map: "courseid")
+  @@index([teacherid], map: "teacherid")
+}
+
+model invoices {
+  id             Int          @id @default(autoincrement())
+  subscriptionid Int
+  collegeid      Int
+  subtotal       Float
+  vat            Float
+  discount       Float
+  total          Float
+  createdon      DateTime     @db.Date
+  duedate        DateTime     @db.Date
+  status         Int
+  college        college      @relation(fields: [collegeid], references: [collegeid], onDelete: Cascade, map: "invoices_ibfk_1")
+  subcriptions   subcriptions @relation(fields: [subscriptionid], references: [id], onDelete: Cascade, map: "invoices_ibfk_2")
+
+  @@index([collegeid], map: "collegeid")
+  @@index([subscriptionid], map: "subscriptionid")
+}
+
+model lesson {
+  id              Int            @id @default(autoincrement())
+  teachercourseid Int
+  lessonno        Int
+  title           String         @db.Text
+  description     String         @db.Text
+  attachments     String         @db.Text
+  status          Int
+  createdon       DateTime       @default(now()) @db.Timestamp(0)
+  teachercourses  teachercourses @relation(fields: [teachercourseid], references: [teachercoursesid], onDelete: Cascade, map: "lesson_ibfk_1")
+
+  @@index([teachercourseid], map: "teacherlessonid")
+}
+
+model recordings {
+  id          Int          @id @default(autoincrement())
+  teacehrid   Int
+  liveclassid Int
+  classid     Int
+  title       String       @db.Text
+  url         String       @db.Text
+  createdon   DateTime     @default(now()) @db.Timestamp(0)
+  status      Int
+  class       Renamedclass @relation("classTorecordings", fields: [classid], references: [classid], onDelete: Cascade, map: "recordings_ibfk_1")
+  teacher     teacher      @relation(fields: [teacehrid], references: [teacherid], onDelete: Cascade, map: "recordings_ibfk_2")
+  liveclass   liveclass    @relation(fields: [liveclassid], references: [liveclassid], onDelete: Cascade, map: "recordings_ibfk_3")
+
+  @@index([classid], map: "classid")
+  @@index([liveclassid], map: "liveclassid")
+  @@index([teacehrid], map: "teacehrid")
+}
+
+model contactus {
+  contactusid Int      @id @default(autoincrement())
+  name        String   @db.VarChar(250)
+  email       String   @db.VarChar(250)
+  phone       String   @db.VarChar(250)
+  issue       String   @db.VarChar(500)
+  message     String   @db.Text
+  status      Boolean
+  createdon   DateTime @default(now()) @db.Timestamp(0)
+}
+
+model assignment {
+  id                        Int                   @id @default(autoincrement())
+  course                    Int
+  teacherid                 Int
+  name                      String                @db.Text
+  description               String                @db.Text
+  created_on                DateTime              @default(now()) @db.Timestamp(0)
+  course_assignmentTocourse course                @relation(fields: [course], references: [courseid], onDelete: Cascade, map: "assignment_ibfk_1")
+  teacher                   teacher               @relation(fields: [teacherid], references: [teacherid], onDelete: Cascade, map: "assignment_ibfk_2")
+  assignmentquestions       assignmentquestions[]
+  classassignment           classassignment[]
+  submitedassignments       submitedassignments[]
+
+  @@index([course], map: "course")
+  @@index([teacherid], map: "teacherid")
+}
+
+model assignmentquestions {
+  id                         Int                          @id @default(autoincrement())
+  assingment                 Int
+  question                   String                       @db.Text
+  ismultipechoice            Boolean                      @default(true)
+  created_on                 DateTime                     @default(now()) @db.DateTime(0)
+  assignment                 assignment                   @relation(fields: [assingment], references: [id], onDelete: Cascade, map: "assignmentquestions_ibfk_1")
+  mcqs                       mcqs[]
+  submittedassignmentanswers submittedassignmentanswers[]
+
+  @@index([assingment], map: "assingment")
+}
+
+model mcqs {
+  id                  Int                 @id @default(autoincrement())
+  question            Int
+  option              String              @db.Text
+  iswrite             Boolean
+  assignmentquestions assignmentquestions @relation(fields: [question], references: [id], onDelete: Cascade, map: "mcqs_ibfk_1")
+
+  @@index([question], map: "question")
+}
+
+model classassignment {
+  id                                     Int                   @id @default(autoincrement())
+  assignment                             Int
+  class                                  Int
+  duedate                                DateTime              @db.Date
+  status                                 Int                   @db.TinyInt
+  created_on                             DateTime              @default(now()) @db.DateTime(0)
+  assignment_assignmentToclassassignment assignment            @relation(fields: [assignment], references: [id], onDelete: Cascade, map: "classassignment_ibfk_1")
+  class_classToclassassignment           Renamedclass          @relation("classToclassassignment", fields: [class], references: [classid], onDelete: Cascade, map: "classassignment_ibfk_2")
+  submitedassignments                    submitedassignments[]
+
+  @@index([assignment], map: "assignment")
+  @@index([class], map: "class")
+}
+
+model submitedassignments {
+  id                                                   Int                          @id @default(autoincrement())
+  student                                              Int
+  assignment                                           Int
+  classassignment                                      Int
+  status                                               Int                          @db.TinyInt
+  grade                                                Float?
+  created_on                                           DateTime                     @default(now()) @db.DateTime(0)
+  student_studentTosubmitedassignments                 student                      @relation(fields: [student], references: [studentid], onDelete: Cascade, map: "submitedassignments_ibfk_1")
+  assignment_assignmentTosubmitedassignments           assignment                   @relation(fields: [assignment], references: [id], onDelete: Cascade, map: "submitedassignments_ibfk_2")
+  classassignment_classassignmentTosubmitedassignments classassignment              @relation(fields: [classassignment], references: [id], onDelete: Cascade, map: "submitedassignments_ibfk_3")
+  submittedassignmentanswers                           submittedassignmentanswers[]
+
+  @@index([assignment], map: "assignment")
+  @@index([student], map: "student")
+  @@index([classassignment], map: "classassignment")
+}
+
+model submittedassignmentanswers {
+  id                  Int                 @id @default(autoincrement())
+  submittedassignment Int
+  question            Int
+  answer              String              @db.Text
+  istrue              Boolean?
+  assignmentquestions assignmentquestions @relation(fields: [question], references: [id], onDelete: Cascade, map: "submittedassignmentanswers_ibfk_1")
+  submitedassignments submitedassignments @relation(fields: [submittedassignment], references: [id], onDelete: Cascade, map: "submittedassignmentanswers_ibfk_2")
+
+  @@index([question], map: "question")
+  @@index([submittedassignment], map: "submittedassignment")
+}

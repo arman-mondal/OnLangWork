@@ -1,0 +1,88 @@
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+body {
+  background-color: #FCD21C;
+}
+.App-header {
+  /*background-image: url('http://localhost:3000/Images/bg.jpeg');*/
+  background-position: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+}
+
+.loader{
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: #FCD21C;
+  padding-top: 20%;
+  opacity: 0.95;
+}
+
+.bgImage{
+  background-image: url('https://onlang.net/Images/bg.jpeg');
+}
+
+.div-scroll-y{
+  height: 450px;
+  overflow-y: scroll;
+}
+
+.div-scroll-y-invite{
+  height: 280px;
+  overflow-y: scroll;
+}
+
+.div-scroll-y-panel{
+  height: 600px;
+  overflow-y: scroll;
+}
+
+.theme-color{
+  color: #FCD21C;
+}
+
+.ck-editor__editable_inline {
+    min-height: 250px;
+}
+
+.dropzone {
+  text-align: center;
+  padding: 30px;
+  border: 3px dashed #eeeeee;
+  background-color: #fafafa;
+  color: #bdbdbd;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.selected-file-wrapper {
+  text-align: center;
+}
+
+.selected-file {
+  color: #000;
+  font-weight: bold;
+}
+
+.lesson-anchor {
+    color: #000;
+    text-decoration: none;
+    border-bottom: 1px solid #000;
+}
+
+.message {
+    border-radius: "15px";
+    color : "white";
+}

@@ -1,0 +1,135 @@
+.clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+
+#logo {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#logo img {
+  width: 180px;
+}
+
+.invoice-number {
+  border-top: 1px solid  #5D6975;
+  border-bottom: 1px solid  #5D6975;
+  color: #5D6975;
+  font-size: 1.5em;
+  line-height: 1em;
+  font-weight: normal;
+  text-align: center;
+  margin: 0 0 20px 0;
+  /*background: url(/Images/dimension.png);*/
+}
+
+#invoice {
+    width: 21cm;
+    min-height: 29.7cm;
+    padding: 2cm;
+    margin: 1cm auto;
+    border: 1px #D3D3D3 solid;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+#project {
+  float: left;
+  text-align: left;
+  margin-left: 2em;
+
+}
+
+#project span {
+  color: #5D6975;
+  width: 90px;
+  margin-right: 10px;
+  display: inline-block;
+  font-size: 1em;
+}
+
+#company {
+  float: right;
+  text-align: right;
+  margin-right: 2em;
+}
+
+#project div,
+#company div {
+  color: #5D6975;
+  font-size: 1em;        
+}
+
+
+#print {
+  text-align: right;
+  margin: 0.5em;
+}
+
+#invoice-table table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-bottom: 20px;
+}
+
+#invoice-table table tr:nth-child(2n-1) td {
+  background: #F5F5F5;
+}
+
+#invoice-table table th,
+#invoice-table table td {
+  text-align: center;
+  font-size: 1em;
+}
+
+#invoice-table table th {
+  padding: 5px 20px;
+  color: #5D6975;
+  border-bottom: 1px solid #C1CED9;
+  white-space: nowrap;        
+  font-weight: normal;
+}
+
+#invoice-table table .service,
+#invoice-table table .desc {
+  text-align: left;
+}
+
+#invoice-table table td {
+  padding: 20px;
+  text-align: right;
+}
+
+#invoice-table table td.service,
+#invoice-table table td.desc {
+  vertical-align: top;
+}
+
+#invoice-table table td.unit,
+#invoice-table table td.qty,
+#invoice-table table td.total {
+  font-size: 1em;
+}
+
+#invoice-table table td.grand {
+  border-top: 1px solid #5D6975;;
+}
+
+.notice {
+  text-align: left;
+  color: #5D6975;
+  font-size: 1em;
+}
+.footer {
+  margin-top: 2em;
+  background: #F5F5F5;
+  text-align: center;
+  color: #5D6975;
+  font-size: 0.75em;
+}

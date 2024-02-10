@@ -1,0 +1,378 @@
+/*--------------------------------------------------------------
+# Sections General
+--------------------------------------------------------------*/
+section {
+  padding: 10px 0;
+  overflow: hidden;
+  width: 95%;
+}
+
+hr {
+  height:2px !important;
+  border-width:0;
+  background-color:#000;
+  color: #000;
+  opacity: 1 !important;
+}
+
+.section-title {
+  padding-bottom: 10px;
+  animation: fadeInAnimation ease 1s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+.section-title h2 {
+  font-size: 18px;
+  font-weight: 700;
+  padding: 0;
+  line-height: 1px;
+  margin: 0 0 5px 0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #FCD21C;
+  font-family: "Poppins", sans-serif;
+}
+
+.section-title h2::after {
+  content: "";
+  width: 120px;
+  height: 1px;
+  display: inline-block;
+  background: #FCD21C;
+  margin: 4px 10px;
+}
+
+.section-title p {
+  margin: 0;
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-family: "Poppins", sans-serif;
+  color: #2a2c39;
+}
+
+/*--------------------------------------------------------------
+# Pricing
+--------------------------------------------------------------*/
+.pricing .box {
+  padding: 20px;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.12);
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInAnimation ease 1s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+.pricing h3 {
+  font-weight: 400;
+  margin: -20px -20px 25px -20px;
+  padding: 30px 15px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #777777;
+  background: #f8f8f8;
+}
+
+.pricing h4 {
+  font-size: 36px;
+  color: #FCD21C;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  margin-bottom: 20px;
+}
+
+.pricing h4 sup {
+  font-size: 20px;
+  top: -15px;
+  left: -3px;
+}
+
+.pricing h4 span {
+  color: #bababa;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.pricing ul {
+  padding: 0;
+  list-style: none;
+  color: #444444;
+  text-align: center;
+  line-height: 20px;
+  font-size: 14px;
+}
+
+
+.pricing ul i {
+  color: #006400;
+  font-size: 12px;
+}
+
+.pricing ul .na {
+  color: #ccc;
+  text-decoration: line-through;
+}
+
+.pricing .btn-wrap {
+  margin: 20px -20px -20px -20px;
+  padding: 20px 15px;
+  background: #f8f8f8;
+  text-align: center;
+}
+.pricing .btn-wrap-next {
+  margin: 20px -20px -20px -20px;
+  padding: 20px 15px;
+  background: #f8f8f8;
+  text-align: right;
+}
+
+.pricing .btn-buy {
+  background: #FCD21C;
+  display: inline-block;
+  padding: 8px 35px 10px 35px;
+  border-radius: 50px;
+  color: #fff;
+  transition: none;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: "Raleway", sans-serif;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.pricing .btn-buy:hover {
+  background: #fff;
+  color: #777777;
+  border: solid 1px #FCD21C;
+}
+
+.pricing .featured {
+  border: 2px solid #FCD21C;
+}
+
+.pricing .featured h3 {
+  color: #fff;
+  background: #FCD21C;
+}
+
+.pricing .advanced {
+  width: 200px;
+  position: absolute;
+  top: 18px;
+  right: -68px;
+  transform: rotate(45deg);
+  z-index: 1;
+  font-size: 14px;
+  padding: 1px 0 3px 0;
+  background: #01e1ff;
+  color: #fff;
+}
+.scroll{
+  overflow-x: auto;
+  flex-wrap: inherit;
+  margin-top: 10px;
+}
+.size:hover{
+  transform: scale(1.02);
+  transition: 0.5s;
+}
+.box:hover h3 {
+  color: #fff;
+  background: #FCD21C;
+  transition: 0.5s;
+}
+.previous {
+  color: #2a2c39;
+  display: none;
+}
+.round {
+  border-radius: 50%;
+}
+.progressbar-section{
+  text-align: center;
+  margin-top: 10px;
+  animation: fadeInAnimation ease 1s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+#progressbar {
+    /*overflow: hidden;*/
+    /*color: lightgrey*/
+    padding-left: 0px !important;
+}
+
+#progressbar .progressactive {
+    color: #FCD21C;
+}
+
+#progressbar li {
+    list-style-type: none;
+    font-size: 15px;
+    width: 25%;
+    float: left;
+    position: relative;
+    font-weight: 400
+}
+
+#progressbar #packages:before {
+    font-family: "Font Awesome 5 Pro";
+    content: "\f51e"
+}
+
+#progressbar #price:before {
+    font-family: "Font Awesome 5 Pro";
+    content: "\f0d6"
+}
+
+#progressbar #information:before {
+    font-family: "Font Awesome 5 Pro";
+    content: "\f19c"
+}
+
+#progressbar #confirm:before {
+    font-family: "Font Awesome 5 Pro";
+    content: "\f058"
+}
+
+#progressbar li:before {
+    width: 50px;
+    height: 50px;
+    line-height: 45px;
+    display: block;
+    font-size: 20px;
+    color: #ffffff;
+    background: lightgray;
+    border-radius: 50%;
+    margin: 0 auto 10px auto;
+    padding: 2px
+}
+
+#progressbar li:after {
+    content: '';
+    width: 100%;
+    height: 2px;
+    background: lightgray;
+    position: absolute;
+    left: 0;
+    top: 25px;
+    z-index: -1
+}
+
+#progressbar li.progressactive:before,
+#progressbar li.progressactive:after {
+    background: #FCD21C
+}
+.table-cell{
+  text-align: left;
+}
+#informationsection{
+  display: none;
+}
+.information-card{
+  text-align: left;
+}
+.red{
+  color: red;
+}
+.background{
+  background: #fff;
+  opacity: 0.9;
+  border-radius: 50px;
+}
+#overlay {
+  position: fixed;
+}
+.center{
+  text-align: center;
+}
+#finish{
+  display: none;
+}
+
+@keyframes scaling {
+  From {
+      -webkit-transform: scale(1);
+  }
+  To {
+      -webkit-transform: scale(1.2);
+  }
+}
+#tick {
+  width: 20%;
+-webkit-animation: scaling 1s infinite alternate;
+}
+.thankyou-message{
+  font-weight: 500;
+}
+.button-Next{
+  border: 0px;
+  margin-left: 1% !important;
+  background: transparent;
+}
+
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+     }
+}
+.no-padding{
+  padding: 0px !important;
+}
+
+.no-margin{
+  margin: 0px !important;
+}
+.align-left{
+  text-align: left;
+}
+.align-right{
+  text-align: right;
+}
+.icon-cog {
+  color: #FCD21C;
+}
+.transparent-bg{
+  background: transparent !important;
+  color: #fff;
+}
+.selectbox{
+  min-height: 335px;
+  max-height: 335px;
+  overflow-y: scroll;
+  background-color: #e2e3e5;
+}
+.selectedbox{
+  min-height: 380px;
+  max-height: 380px;
+  overflow-y: scroll;
+  background-color: #e2e3e5;
+}
+.selectliHead{
+  background: #FCD21C;
+  color: #fff;
+}
+.selectInnerDiv{
+  display: inline-flex;
+  width: 100%;
+}
+.studentInfo{
+  width:80%
+}
+.badgeInfo{
+  width: 20%;
+}
+.add-new-course{
+  margin-bottom: 10px;
+  padding: 5px;
+  background: #f8f8f8; 
+  text-align: right;
+}

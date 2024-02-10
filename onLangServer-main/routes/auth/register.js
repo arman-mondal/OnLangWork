@@ -1,0 +1,202 @@
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+const fileupload = require("express-fileupload");
+var bodyParser = require("body-parser");
+var mail = require("../../constants/email");
+const { uploadFile } = require("../../middleware/multerupload");
+
+/******** Prisma Client *******/
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+
+/******** Json Parser *******/
+var jsonParser = bodyParser.json();
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
+
+/******** Creating Routing *******/
+var router = express.Router();
+
+const DIR = "assets/";
+
+function generateAccessToken(user) {
+  return jwt.sign(user, process.env.TOKEN_SECRET, { expiresIn: "1800s" });
+}
+
+router.post("/college", urlencodedParser, async (req, res) => {
+  const startdate = new Date(req.body.startdate);
+  const user = await prisma.college.create({
+    data: {
+      collegename: req.body.collegename,
+      collegetype: req.body.collegetype,
+      username: req.body.email,
+      password: req.body.password,
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      designation: req.body.designation,
+      department: req.body.department,
+      email: req.body.email,
+      website: req.body.website,
+      phone: req.body.phone,
+      tel: req.body.tel,
+      city: req.body.city,
+      postalcode: req.body.postalcode,
+      country: req.body.country,
+      countrycode: req.body.countrycode,
+      noofpackages: parseInt(req.body.noofpackages),
+      startdate: startdate,
+      accent: req.body.accent,
+      subscription: parseInt(req.body.subscription),
+      status: 1,
+      reading: Boolean(req.body.reading),
+      writing: Boolean(req.body.writing),
+      speaking: Boolean(req.body.speaking),
+      listening: Boolean(req.body.listening),
+    },
+  });
+  for (var i = 0; i < parseInt(req.body.noofpackages); i++) {
+    const subcriptions = await prisma.subcriptions.create({
+      data: {
+        collegeId: user.collegeid,
+        packageId: parseInt(req.body.subscription),
+      },
+    });
+    const package = await prisma.packages.findUnique({
+      where: { packageid: parseInt(req.body.subscription) },
+    });
+    const invoice = await prisma.invoices.create({
+      data: {
+        collegeid: user.collegeid,
+        subscriptionid: subcriptions.id,
+        subtotal: package.packageprice,
+        vat: (package.packageprice / 100) * 25,
+        discount: 0,
+        total: package.packageprice + (package.packageprice / 100) * 20,
+        createdon: new Date(),
+        duedate: new Date(Date.now() + 12096e5),
+        status: 0,
+      },
+    });
+  }
+  let mailOptions = {
+    from: "On Lang <info@onlang.net>",
+    to: req.body.email,
+    bcc: "application@onlang.net,mariamshir@gmail.com,mfaroughy@onlang.net",
+    subject: "On Lang New Registration",
+    template: "registerCollege",
+    context: { name: req.body.collegename },
+  };
+  mail
+    .sendMail(mailOptions)
+    .then(function (email) {
+      console.log("Email Sended to College");
+      let mailOptionsNotification = {
+        from: "On Lang <info@onlang.net>",
+        to: "mariamshir@gmail.com,mfaroughy@onlang.net",
+        subject: "On Lang New Institution Request",
+        template: "registerNotification",
+      };
+      mail
+        .sendMail(mailOptionsNotification)
+        .then(function (email) {
+          console.log("Notification Email Sended");
+          res.json({ code: 200, message: "Register Successful", user: user });
+        })
+        .catch(function (exception) {
+          console.log("Notification Email Failed");
+          res.json({ code: 200, message: exception, user: user });
+        });
+    })
+    .catch(function (exception) {
+      console.log("College Email Failed");
+      res.json({ code: 200, message: exception, user: user });
+    });
+});
+
+router.post(
+  "/teacher",
+  uploadFile("teacher/").any("files"),
+  async (req, res) => {
+    const filesURL = [];
+    req.files.forEach((file) => {
+      filesURL.push(`teacher/${file.filename}`);
+    });
+    const teacher = await prisma.teacher.create({
+      data: {
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        email: req.body.email,
+        username: req.body.email,
+        password: req.body.password,
+        phone: req.body.phone,
+        accent: parseInt(req.body.accent),
+        street: req.body.streetno,
+        address: req.body.streetname,
+        city: req.body.city,
+        country: req.body.country,
+        university:
+          parseInt(req.body.university) == 0
+            ? null
+            : parseInt(req.body.university),
+        cartificate: JSON.stringify(filesURL),
+      },
+    });
+    JSON.parse(req.body.courses).forEach((course) => {
+      console.log(course);
+      addCourses(teacher.teacherid, course.courseid);
+    });
+
+    let mailOptions = {
+      from: "On Lang <info@onlang.net>",
+      to: req.body.email,
+      bcc: "application@onlang.net,mariamshir@gmail.com,mfaroughy@onlang.net",
+      subject: "On Lang New Registration",
+      template: "registerTeacher",
+      context: {
+        fname: req.body.firstname.toUpperCase(),
+        lname: req.body.lastname.toUpperCase(),
+      },
+    };
+    mail
+      .sendMail(mailOptions)
+      .then(function (email) {
+        let mailOptionsNotification = {
+          from: "On Lang <info@onlang.net>",
+          to: "mariamshir@gmail.com,mfaroughy@onlang.net",
+          subject: "On Lang New Teacher Registration Request",
+          template: "registerNotification",
+        };
+        mail
+          .sendMail(mailOptionsNotification)
+          .then(function (email) {
+            res.json({
+              code: 200,
+              message: "Register Successful",
+            });
+          })
+          .catch(function (exception) {
+            res.json({
+              code: 200,
+              message: exception,
+            });
+          });
+      })
+      .catch(function (exception) {
+        res.json({
+          code: 200,
+          message: "EMail Send Error",
+        });
+      });
+  }
+);
+
+async function addCourses(teacherid, courseid) {
+  await prisma.teachercourses.create({
+    data: {
+      teacherid: teacherid,
+      courseid: courseid,
+      teachercoursesstatus: 0,
+    },
+  });
+}
+module.exports = router;

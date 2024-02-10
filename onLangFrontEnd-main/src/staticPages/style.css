@@ -1,0 +1,13 @@
+.center{
+	text-align: center;
+}
+.hr{
+	height:1px !important;
+	border-width:0;
+	background-color:#000;
+	color: #000;
+	opacity: 1 !important;
+}
+.term-condition{
+	height: 100vh;
+}
