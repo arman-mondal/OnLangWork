@@ -11,7 +11,7 @@ var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false})
 const upload = require('multer')();
 const DIR = 'assets/';
-const dropboxToken = 'sl.BvVW8udN3qSkA1aBBmnXraQhUzqUz71IRawZEsPJKLlWQb28Ori6i2tJn8C4ZnM3Li3dtAJTmxEKENduSQokbwyoeA82eY8E7K0s5-5_TepWFQrX8yCh_wjEsALfs4iNm0fR1-xhfHblNeE';
+const dropboxToken = 'sl.BvVu6iSpuLdumyrCBvGJ8laDXNbXf2WfG9RYbEFJniikidlIV4QKiO8Wt-fekeYSGCNd_lIZFj3Y3hxKZgvxiYcpKEBHx7DhihRDJ6_YS6JbVIUVQKAahVkOSjOCrPUjdf8ZOfrMDMPlLTg';
 const { Dropbox } = require('dropbox');
 
 router.get("/getclasseslist", async(req, res) => {

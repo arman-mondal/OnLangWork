@@ -68,6 +68,7 @@ const Video = (props) => {
   const ref = useRef();
 
   useEffect(() => {
+    
     props.peer.on("stream", (stream) => {
       ref.current.srcObject = stream;
     });
@@ -76,6 +77,8 @@ const Video = (props) => {
 };
 
 const Room = (props) => {
+  
+  const [filessocket,setfilessocket]=useState([])
   const userProfile = {
     name : `${props.user.firstname} ${props.user.lastname}`,
     isteacher : true,
@@ -124,8 +127,10 @@ const [penIcon,setpenIcon]=useState("https://cdn3.iconfinder.com/data/icons/soci
   } = useMediaRecorder({
     recordScreen: true, blobOptions: { type: 'video/webm' }, mediaStreamConstraints: { audio: true, video: true }
   });
-
+  
+  
   useEffect(() => {
+
     if(isChecked===true){
       setlocalchange(true);}
       if(isChecked===false){
@@ -398,32 +403,63 @@ const [penIcon,setpenIcon]=useState("https://cdn3.iconfinder.com/data/icons/soci
     }
   }
   useEffect(() => {
-
+    fetchfiles()
     
           
     socketRef.current.on("whiteboardChangeTransmit", (data) => {
       setWhiteboard(data);
     })
     //to see uploaded files by other
-    socketRef.current.on("whiteboardFileUploadedTransmit", (data) => {
-      console.log(data);
-    })
+   
 
     socketRef.current.on("whiteboardAccessRequest", (studentId) => {
       setrequestedaccess(true);
 setaccessrequested(studentId.peerId);      
 console.log(studentId);
       
-      
+
       
       
       
                 
       
     })
-      
+    const gett=()=>{
+      axios.get(configData.SERVER_URL+'classes/live-class-files/'+roomID)
+      .then((res)=>{
+        const data=res.data.classes
+        data.map((item)=>{
+          console.log(item.filename)
+        })
+       setfilessocket(data)
+       
+      })
+      .catch((err)=>{console.log(err)
+      }
+      )
+    }
+    gett()
+    
+    return () => {
+      socketRef.current.on("whiteboardFileUploadedTransmit", (data) => {
+        console.log('dATA AGYA')
+        axios.get(configData.SERVER_URL+'classes/live-class-files/'+roomID)
+       .then((res)=>{
+        console.log(res)
+       setfilessocket(res.data.classes)
+        return
+       })
+       .catch((err)=>{console.log(err)
+       return})
+       
+           })
+  };
+   
+   
         
-  }, [whiteboard])
+  }, [])
+
+
   const handlewhiteboardchange = (data) => {
       // if(isChecked){
       //   return
@@ -473,14 +509,85 @@ console.log(studentId);
     input.click();
   };
 
+  function extractTextFromURL(url) {
+    // Split the URL by '/'
+    const parts = url.split('/');
+    // Get the 7th part and split it by '?'
+    const textPart = parts[6].split('?')[0];
+    // Return the extracted text
+    return textPart;
+}
 
+const fetchfiles=async()=>{
 
+  
+}
   return (
     <div className="App">
         <header>
           <div className="loader" id="loader">
             <Loader type="spinner-circle" bgColor={"#ffffff"} title={"LOADING..."} color={'#ffffff'} size={100}/>
           </div>
+          <div style={{ 
+            width: '200px',
+            border: '1px solid #ccc',
+            borderRadius: '5px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            margin: '20px auto',
+            fontFamily: 'Arial, sans-serif',
+            position:'absolute',
+            zIndex:10,
+            right:15,
+            height:'300px',
+            bottom:150,
+          
+        }}>
+            <div style={{ 
+                backgroundColor: '#f0f0f0',
+                padding: '10px',
+                borderBottom: '1px solid #ccc',
+                borderTopLeftRadius: '5px',
+                borderTopRightRadius: '5px'
+            }}>
+                  
+  <input id="fileupload" type="file" style={{
+    display:'none'
+  }} onChange={async(e)=>{
+    const file=e.target.files[0]
+    const formData=new FormData()
+    formData.append('uuid',roomID)
+    formData.append('type','teacher')
+    formData.append('file',file)
+    formData.append('type_id',props.user.teacherid)
+    await axios.post(configData.SERVER_URL+'classes/upload-file',formData)
+    .then((res)=>{
+      const data=res.data.url;
+      socketRef.current.emit("whiteboardFileUploaded",data);
+    })
+    .catch((err)=>{
+      swal.fire({
+        icon:'error',
+        text:'Failed'
+      })
+    })
+
+  }} />
+  <Button style={{
+    cursor:'pointer'
+  }} onClick={()=>{
+document.getElementById('fileupload').click()
+  }}  >Upload</Button>
+            </div>
+            <div style={{ padding: '10px' }}>
+              
+                {filessocket.length>0 &&  filessocket.map((item)=>(
+  <a className="" href={item.filename} style={{fontSize:15 ,width:'100%',padding:2}} >name</a>
+
+))}
+                {/* Add more messages as needed */}
+            </div>
+        </div>
+      
           <div className="pricing m-2">
               <div className="col-lg-10 col-md-10 mt-6 mt-lg-0 h-100">
                 <div className="box price featured no-padding">

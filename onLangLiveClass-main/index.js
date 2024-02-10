@@ -98,6 +98,12 @@ io.on("connection", (socket) => {
         socket.broadcast.emit('videochange',studentId)
     });
 
+    socket.on('filechange', (file) => {
+        console.log(file,"filechange")
+        socket.broadcast.emit('filechange',file)
+    });
+
+
     socket.on('whiteboardChanged', (whiteboard) => {
         console.log("Whiteboard Changed")
         console.log(whiteboard,"here")
@@ -106,7 +112,7 @@ io.on("connection", (socket) => {
 
     socket.on('whiteboardFileUploaded', (file) => {
         console.log("whiteboardFileUploaded Changed")
-        console.log(whiteboard,"here")
+        console.log(file,"here")
         socket.broadcast.emit('whiteboardFileUploadedTransmit',file)
     });
 
