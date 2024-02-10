@@ -11,7 +11,7 @@ var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false})
 const upload = require('multer')();
 const DIR = 'assets/';
-const dropboxToken = 'sl.BvSRU5jy_xG-E8cA8PLET3lLZyqLp_qsjKhYv0GFEk1-jeFr3NQamFZsfkYXcKszhtVvbknaICWquTLSQxsO_3KWrZLpqfdmxcJRRKrPzVTwufmgjJ77nhEOZlONDZzKudMGYnKqmd9A3Ik';
+const dropboxToken = 'sl.BvVW8udN3qSkA1aBBmnXraQhUzqUz71IRawZEsPJKLlWQb28Ori6i2tJn8C4ZnM3Li3dtAJTmxEKENduSQokbwyoeA82eY8E7K0s5-5_TepWFQrX8yCh_wjEsALfs4iNm0fR1-xhfHblNeE';
 const { Dropbox } = require('dropbox');
 
 router.get("/getclasseslist", async(req, res) => {
@@ -326,11 +326,7 @@ router.post("/closeliveclass", urlencodedParser, async(req, res) => {
 			status : 0
 		}
 	})
-	const deletedFiles = await prisma.liveclassfiles.delete({
-      where: {
-        uuid: req.body.uuid,
-      },
-    });
+    await prisma.$queryRaw`delete from liveclassfiles WHERE uuid = ${req.body.uuid}`
 	await prisma.$queryRaw`UPDATE liveclass SET status = 1, endtime = NOW() WHERE uuid = ${req.body.uuid}`
 	if(liveclass.length > 0){
 		await prisma.$queryRaw`UPDATE liveclassstudents SET status = 1,endtime = NOW() WHERE status = 0 AND liveclass = ${liveclass[0].liveclassid}`
