@@ -19,6 +19,13 @@ model accent {
   course      course[]
   teacher     teacher[]
 }
+model liveclassfiles {
+  fileid         Int       @id @default(autoincrement())
+  type           String    @db.Text
+  type_id        Int
+  uuid           String    @db.Text
+  filename       String    @db.Text
+}
 
 model admin {
   id              Int       @id
@@ -273,14 +280,6 @@ model liveclass {
 
   @@index([classid], map: "classid")
   @@index([teacherid], map: "teacherid")
-}
-
-model liveclassfiles {
-  fileid            Int                 @id @default(autoincrement())
-  type              String              @db.Text
-  type_id           Int
-  uuid              String              @db.Text
-  filename          String              @db.Text
 }
 
 model liveclassstudents {

@@ -7,7 +7,9 @@ const fileupload = require("express-fileupload");
 var mail = require("./constants/email");
 var verifyToken = require("./constants/token");
 const { uploadFile } = require("./middleware/multerupload");
-const multer=require('multer');
+const multer = require('multer');
+const jwt = require('jsonwebtoken');
+const path = require('path');
 const fs = require("fs");
 const app = express();
 var key = fs.readFileSync("ssl/private.key");
@@ -69,7 +71,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(urlencodedParser);
 app.use(jsonParser);
-corsOptions=["*"]
+corsOptions = ["*"]
 app.use(cors(corsOptions));
 // app.use(fileupload());
 app.use("/backend", express.static("assets"));
@@ -94,8 +96,8 @@ app.use("/backend/classes/", classesRoutes);
 app.use("/backend/lesson/", lessonRoutes);
 app.use("/backend/recordings/", recordingsRoutes);
 app.use("/backend/contactus/", contactusRoutes);
-app.get("/serverStatusCheck",(res,req)=>{
-res.status(200).json({"status":"OK"})
+app.get("/serverStatusCheck", (res, req) => {
+  res.status(200).json({ "status": "OK" })
 });
 app.get("/backend/api", (req, res) => {
   let mailOptions = {
@@ -116,6 +118,39 @@ app.get("/backend/api", (req, res) => {
   res.json({ users: ["userone", "usertwo", "userthree", "userfour"] });
 });
 
+// Learn Cube
+app.post('/classes/get-valid-token/', function (req, res) {
+  const privateKey = "6fa59d04cd04460ad8fa97e10154b5afcbec6709"
+  const username = "sahilpethani50gmailcom"
+  const user_id = "808117"
+  const email = "sahilpethani50gmailcom"
+
+  const token = jwt.sign({
+    "exp": Math.floor(Date.now() / 1000) + (60 * 5),
+    "username": username,
+    "user_id": user_id,
+    "email": email,
+  }, privateKey, { algorithm: 'HS256' })
+
+  res.setHeader('Content-Type', 'application/json')
+  res.end(JSON.stringify({ 'token': token }))
+});
+
+app.get('/backend/call/', function (req, res) {
+  const { token, userid, username, userType, classid } = req.query;
+  if (!token || !userid || !username || !userType || !classid) {
+    return res.status(400).send('Error: Missing required parameters.');
+  }
+
+  let indexHtmlContent = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  indexHtmlContent = indexHtmlContent.replace(token);
+  indexHtmlContent = indexHtmlContent.replace(userid);
+  indexHtmlContent = indexHtmlContent.replace(username);
+  indexHtmlContent = indexHtmlContent.replace(userType);
+  indexHtmlContent = indexHtmlContent.replace(classid);
+  res.send(indexHtmlContent);
+});
+
 app.get("/backend/home", (req, res) => {
   verifyToken(res, req.headers.authtoken);
 });
@@ -134,7 +169,7 @@ app.post(
 );
 const acceptedOrigins = [
   "http://localhost:3000",
-  
+
   "*" // Be cautious when using the wildcard (*) for CORS
 ];
 app.use((req, res, next) => {
