@@ -219,10 +219,10 @@ app.post('/imageuploadhandler', upload.single('file'), (req, res) => {
 
 app.use('/backend/ckeditor', express.static('assets/ckeditor'));
 
-var server = https.createServer(options1, app);
-// app.listen(3003, () => {
-//   console.log("server starting on port : " + 3003);
-// });
-server.listen(3001, () => {
-  console.log("server starting on port : " + 3001);
+// var server = https.createServer(options1, app);
+app.listen(3003, () => {
+  console.log("server starting on port : " + 3003);
 });
+// server.listen(3001, () => {
+//   console.log("server starting on port : " + 3001);
+// });

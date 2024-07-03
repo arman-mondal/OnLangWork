@@ -25,6 +25,46 @@ function generateAccessToken(user) {
 
 router.post("/college", urlencodedParser, async (req, res) => {
   const startdate = new Date(req.body.startdate);
+
+
+  const createPackage=async()=>{
+
+    const package=await prisma.packages.create({
+      data:{
+        packageprice:0,
+        noofclases:parseInt(req.body.noofclass),
+        noofstudent:parseInt(req.body.noofstudents),
+        timing:parseInt(req.body.courseperiods),
+        packagecolor:'#dbff33',
+        feature1:'',
+        feature2:'',
+        feature3:'',
+        feature4:'',
+        feature5:'',
+        feature6:'',
+        feature7:'',
+        feature8:'',
+        status:0,
+        support:0,
+        createdby:req.body.collegename,
+        course:{
+          create:{
+            coursename:req.body.coursename,
+            courseaccent:13,
+            description:'created by user',
+            createdby:req.body.collegename,
+            status:0
+          }
+        }
+      }
+    })
+    return package.packageid
+
+
+  }
+
+  const pkgId=await createPackage()
+
   const user = await prisma.college.create({
     data: {
       collegename: req.body.collegename,
@@ -43,10 +83,10 @@ router.post("/college", urlencodedParser, async (req, res) => {
       postalcode: req.body.postalcode,
       country: req.body.country,
       countrycode: req.body.countrycode,
-      noofpackages: parseInt(req.body.noofpackages),
+      noofpackages: 1,
       startdate: startdate,
       accent: req.body.accent,
-      subscription: parseInt(req.body.subscription),
+      subscription: pkgId,
       status: 1,
       reading: Boolean(req.body.reading),
       writing: Boolean(req.body.writing),
@@ -58,11 +98,11 @@ router.post("/college", urlencodedParser, async (req, res) => {
     const subcriptions = await prisma.subcriptions.create({
       data: {
         collegeId: user.collegeid,
-        packageId: parseInt(req.body.subscription),
+        packageId: pkgId,
       },
     });
     const package = await prisma.packages.findUnique({
-      where: { packageid: parseInt(req.body.subscription) },
+      where: { packageid: pkgId },
     });
     const invoice = await prisma.invoices.create({
       data: {

@@ -20,10 +20,13 @@ router.get("/getInstitutionStudents", urlencodedParser, async (req, res) => {
   const college = await prisma.college.findMany({
     where: { jwt: req.headers.authtoken },
   });
+  console.log(college[0].collegeid)
   if (college.length > 0) {
     const students =
       await prisma.$queryRaw`SELECT student.*, course.coursename, course.courseid, subcriptions.id as subscritionid, packages.packageid, packages.noofclases , accent.accentname, packages.timing FROM student INNER JOIN subcriptions ON subcriptions.id = student.subcription INNER JOIN packages ON packages.packageid = subcriptions.packageId INNER JOIN course ON course.courseid = packages.courseid INNER JOIN accent ON accent.accentid = course.courseaccent WHERE student.status = 0 AND student.groupstatus = 1 AND university = ${college[0].collegeid}`;
-    res.json({
+    
+    
+      res.json({
       code: 200,
       message: "Students Retrived Successfully",
       students: students,
