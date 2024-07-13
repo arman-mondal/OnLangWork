@@ -99,6 +99,7 @@ router.post("/college", urlencodedParser, async (req, res) => {
       data: {
         collegeId: user.collegeid,
         packageId: pkgId,
+        
       },
     });
     const package = await prisma.packages.findUnique({

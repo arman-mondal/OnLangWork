@@ -1,9 +1,9 @@
 import './profiling.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
-import React from 'react';
+import React, { Component, useRef } from 'react';
 import Loader from "react-js-loader";
-import {Form} from "react-bootstrap";
+import { Form, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
 import swal from 'sweetalert';
 import PlacesAutocomplete, {geocodeByAddress} from 'react-places-autocomplete';
 import PhoneInput from 'react-phone-number-input';
@@ -52,6 +52,13 @@ export default class InstitutionSignup extends React.Component {
       phone: "",
       tel: "",
       items: [],
+      teachersData: {},
+      selectedCourseData: [],
+      selectedTeachers: [],
+      selectedCourse: [],
+      currentSection: "",
+      previousSection: "",
+      sectionHistory: [],
       selectedpackage: 0,
       DataisLoaded: false,
       selectArray: this.selectArray,
@@ -66,23 +73,40 @@ export default class InstitutionSignup extends React.Component {
       closeBool10th: false,
       closeBool20th: false,
       currentMonth: '1',
-      avaliablePackagesMonths: [],     
+      availablePackagesMonths: [],     
       accents : [],
-    };
-  }
-  componentDidMount () {
-    console.log(this.props.token);
-    if(this.props.token !== 0){
-      window.location =  configData.SERVER_URL
+      coursesall:[],
+      coursename:'',
+      pkgprice:0,
+      noofclass:0,
+      noofstudents:0,
+      courseperiods:0,
+allpkgs:[],
+teachers:[],
+teacherwithcourse:[]
+
+
+      };
+      //this.handleRowClick = this.handleRowClick.bind(this);
+ }
+
+    componentDidMount() {
+        this.initializeCourses(); 
+        this.addStaticTeachers();
+        this.handleSectionChange("packagesSection", false);
+        this.getAllCourses()
+        //console.log(this.props.token);
+        if(this.props.token !== 0){
+          window.location =  configData.SERVER_URL
     }
     axios({
       method: "get",
       url:  configData.SERVER_URL + 'packages/getall',
     }).then(resp => {
-        console.log(resp.data)
+        //console.log(resp.data)
         if(resp.data.code === 200){
           this.setState({
-            avaliablePackagesMonths : resp.data.packages,
+            availablePackagesMonths : resp.data.packages,
           });
         }else{
           swal({
@@ -111,7 +135,7 @@ export default class InstitutionSignup extends React.Component {
         "authtoken" : this.props.match.params.token
       },
     }).then(resp => {
-        console.log(resp.data)
+        //console.log(resp.data)
         if(resp.data.code === 200){
           this.setState({
             accents : resp.data.accents
@@ -202,86 +226,389 @@ export default class InstitutionSignup extends React.Component {
         });
   }
 
-  clickPrice = (e) => {
-    e.preventDefault();
-    this.state.items.map((item, i) => (
-        document.getElementById(item.packageid+"_price").classList.remove("featured")
-      ))
-    document.getElementById(e.currentTarget.id).classList.add("featured");
-    const idArray = e.currentTarget.id.split("_");
-    this.setState({
-      selectedpackage : idArray[0]
-    })
-    setTimeout(() => {
-      document.getElementById("pricing").style.display = "none";
-      document.getElementById("information").classList.add("progressactive");
-      document.getElementById("informationsection").style.display = "block";
-      document.getElementById("backBtnInfo").style.display = "block";
-   }, 200);
+    handlePriceClick = (e) => {
+        e.preventDefault();
+      
+            this.setState({ selectedpackage: this.state.selectedCourse });
 
-  }
+            setTimeout(() => {
+                this.handleSectionChange("informationSection");
+            }, 200);
+        
+    }
 
-  packageFull = (e) => {
-    swal({
-      title: "Package Full!",
-      text: "We are very sorry currently we are not offering class for this package!",
-      icon: "warning",
-      button: "ok",
-    });
-  }
 
-  getPackages = (e) => {
-    e.preventDefault();
-    document.getElementById("loader").style.display = "block";
-    console.log(document.getElementById("pricing").classList);
-    var bodyFormData = new URLSearchParams();
-    bodyFormData.append('packages', e.currentTarget.id);
-    axios({
-        method: "post",
-        url:  configData.SERVER_URL + 'packages/',
-        data: bodyFormData,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      }).then(resp => {
-          console.log(resp.data)
-          document.getElementById("loader").style.display = "none";
-          if(resp.data.code === 200){
-            document.getElementById("timing").style.display = "none";
-            document.getElementById("packages").style.display = "block";
-            document.getElementById("backBtnId").style.display = "block";
-            document.getElementById("price").classList.add("progressactive");
-            this.setState({
-                  items: resp.data.packages,
-                  DataisLoaded: true
-              });
-          }else{
-            if(resp.data.code === 201){
-              swal({
-                title: "No Package Found!",
-                text: "We are very sorry currently no package available for your selection!",
-                icon: "warning",
-                button: "ok",
-              });
-            }else{
-              swal({
-                title: "Server Error!",
-                text: "Please try again!",
-                icon: "warning",
-                button: "ok",
-              });
-            }
-          }
-        })
-      .catch(err => {
-          document.getElementById("loader").style.display = "none";
-          console.log(err)
-            swal({
-              title: "Server Error!",
-              text: "Please try again!",
-              icon: "warning",
-              button: "ok",
+    handleSectionChange = (selectedSection, fromBackButton = false) => {
+        if (!fromBackButton) {
+            this.setState((prevState) => ({
+                sectionHistory: [...prevState.sectionHistory, prevState.currentSection],
+                currentSection: selectedSection,
+            }), () => {
+                this.updateSectionVisibility(selectedSection);
+                this.updateProgressbar(selectedSection);
             });
+        } else {
+            this.updateSectionVisibility(selectedSection);
+            this.updateProgressbar(selectedSection);
+        }
+    }
+
+    updateSectionVisibility = (selectedSection) => {
+        const sections = ["packagesSection", "coursesSection", "teachersSection", "informationSection"];
+        sections.forEach((sectionId) => {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.style.display = sectionId === selectedSection ? "block" : "none";
+            }
+            
+            
+        });
+    }
+
+    updateProgressbar = (selectedSection) => {
+        const sections = ["packages", "courses", "teachers", "information"];
+        const selectedProgress = document.getElementById(selectedSection).dataset.progress;
+
+        sections.forEach((sectionId) => {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                if (sectionId === selectedProgress || sections.indexOf(selectedProgress) > sections.indexOf(sectionId)) {
+                    section.classList.add("progressactive");
+                } else {
+                    section.classList.remove("progressactive");
+                }
+            }
+        });
+    }
+
+    handleBackButtonClick = () => {
+        this.setState((prevState) => {
+            const sectionHistory = [...prevState.sectionHistory];
+            const previousSection = sectionHistory.pop();
+            return {
+                sectionHistory,
+                currentSection: previousSection || 'pricingSection',  // Default to the first section if history is empty
+            };
+        }, () => {
+            this.handleSectionChange(this.state.currentSection, true);
+        });
+    }
+
+
+    /* Packages */
+
+    packageFull = (e) => {
+        swal({
+            title: "Package Full!",
+            text: "We are very sorry currently we are not offering class for this package!",
+            icon: "warning",
+            button: "ok",
+        });
+    }
+
+    initializeCourses = () => {
+        var bodyFormData = new URLSearchParams();
+        bodyFormData.append('packages', "12");
+
+        axios({
+            method: "post",
+            url: configData.SERVER_URL + 'packages/',
+            data: bodyFormData,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        }).then(resp => {
+            //console.log("API response:", resp.data);
+            if (resp.data.code === 200) {
+                //console.log("Packages received:", resp.data.packages);
+                this.setState({
+                    items: resp.data.packages,
+                    DataisLoaded: true
+                }, () => {
+                    //console.log("State updated with items:", this.state.items);
+                });
+            } else {
+                if (resp.data.code === 201) {
+                    swal({
+                        title: "No Package Found!",
+                        text: "We are very sorry currently no package available for your selection!",
+                        icon: "warning",
+                        button: "ok",
+                    });
+                } else {
+                    swal({
+                        title: "Server Error!",
+                        text: "Please try again!",
+                        icon: "warning",
+                        button: "ok",
+                    });
+                }
+            }
+        })
+            .catch(err => {
+                document.getElementById("loader").style.display = "none";
+                console.log("API error:", err);
+                document.getElementById("packages").style.display = "none";
+                swal({
+                    title: "Server Error!",
+                    text: "Please try again!",
+                    icon: "warning",
+                    button: "ok",
+                });
+            })
+    }
+    
+getAllCourses=(e)=>{
+  
+var courses=[]
+var bodyFormData = new URLSearchParams();
+axios({
+  method: "post",
+  url: configData.SERVER_URL + 'packages/',
+  data: bodyFormData,
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+}).then(resp => {
+    document.getElementById("loader").style.display = "none";
+   
+     this.setState({
+      coursesall:resp.data.packages
+     })
+
+        //console.log("Filtered Packages:", filteredCourses);
+}
+       
+).catch(err => {
+    document.getElementById("loader").style.display = "none";
+    console.error("API error:", err);
+    this.handleError();
+});
+
+}
+    getCourses = (e) => {
+        if (this.state.selectedCourse == "") {
+            swal({
+                title: "No course selected",
+                text: "Please select a course",
+                icon: "warning",
+                button: "ok",
+            })
+        } else {
+            if (e) e.preventDefault();
+            document.getElementById("loader").style.display = "block";
+
+            var bodyFormData = new URLSearchParams();
+            bodyFormData.append('packages', e ? e.currentTarget.id : '');
+
+            axios({
+                method: "post",
+                url: configData.SERVER_URL + 'packages/',
+                data: bodyFormData,
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            }).then(resp => {
+                document.getElementById("loader").style.display = "none";
+
+                if (resp.data.code === 200) {
+
+                    //console.log("Selected Courses:", selectedCourses);
+                    //console.log("Packages from response:", resp.data.packages);
+                   
+
+                    this.setState({
+                        // allpkgs: pkgss,
+                        DataisLoaded: true
+                    });
+                    if (e) {
+                        this.handleSectionChange("coursesSection");
+                    }
+                } else {
+                    this.handleError(resp.data);
+                }
+            }).catch(err => {
+                document.getElementById("loader").style.display = "none";
+                console.error("API error:", err);
+                this.handleError();
+            });
+        }
+    }
+
+
+
+    handleError = (data) => {
+        let title = "Server Error!";
+        let text = "Please try again!";
+
+        if (data) {
+            if (data.code === 201) {
+                title = "No Package Found!";
+                text = "We are very sorry currently no package available for your selection!";
+            } else {
+                title = "Server Error!";
+                text = "Please try again!";
+            }
+        }
+
+        swal({
+            title: title,
+            text: text,
+            icon: "warning",
+            button: "ok",
+        });
+    }
+
+
+    /* Buy Class Option */
+
+    handleCourseChange = (selectedCourse) => {
+      if(selectedCourse.length>1){
+return
+      }else{
+        this.setState({
+          selectedCourse: selectedCourse
+        });
+  
+      }
+    };
+
+    getTeachers = () => {
+        const { teachersData, selectedCourse } = this.state;
+        const selectedCourseData = {};
+        if (selectedCourse.length<=0 ) {
+            swal({
+                title: "No course selected",
+                text: "Please select a course",
+                icon: "warning",
+                button: "ok",
+            })
+        } else { 
+        
+        axios({
+          method: "get",
+          url: configData.SERVER_URL + 'teachers/getall',
+          
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
       })
+      .then((res)=>{
+       this.setState({teachers:res.data.teachers})
+       
+      }) 
+      .catch((err)=>{
+        swal({
+          title: "Error",
+          text: err,
+          icon: "warning",
+          button: "ok",
+      })
+      })
+           
+ selectedCourse.map((course)=>{
+  const body=new URLSearchParams()
+  body.append('courseId',course.course.courseid)
+  axios({
+    method: "post",
+    url: configData.SERVER_URL + 'teachers/getcourseteacher',
+    data:body,
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+})
+.then((res)=>{
+  console.warn(res.data);
+  const agendas = res.data.teachers;
+  const data = agendas.map((a) => {
+    const data = this.state.teachers.filter((b) => b.teacherid === a.teacherid);
+    return {...data[0],agenda:a}
+  });
+  console.warn(data);
+  if (data.length > 0) {
+    this.setState({ teacherwithcourse: [...this.state.teacherwithcourse, ...data] });
+    
+  } else {
+  return
   }
+
+  // this.state.teachers.map((teacher)=>{
+  //   const data=res.data.teachers[0].filter(a=>a.teacherid===teacher.teacherid);
+  //   console.log(data)
+  // })
+
+ 
+}) 
+.catch((err)=>{
+  swal({
+    title: "Error",
+    text: err,
+    icon: "warning",
+    button: "ok",
+})
+}) 
+ })           
+             
+            setTimeout(() => {
+                document.getElementById("loader").style.display = "none";
+                this.handleSectionChange("teachersSection");
+            }, 200);
+        }
+    }
+   
+    addStaticTeachers() {
+        this.setState({
+            teachersData: {
+                AI: [
+                    { id: 1, name: 'Jane Cook', time: '9:00 - 9:59AM', days: 'Monday, Wednesday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 2, name: 'Michelle Watkins', time: '2:00-2:59PM', days: 'Wednesday, Thursday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 3, name: 'Mike Thomas', time: '12:00-12:59PM', days: 'Tuesday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 4, name: 'James Washington', time: '4:00-4:59PM', days: 'Friday, Saturday, Sunday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 5, name: 'Jane Cook', time: '9:00 - 9:59AM', days: 'Monday, Wednesday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 6, name: 'Michelle Watkins', time: '2:00-2:59PM', days: 'Wednesday, Thursday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 7, name: 'Mike Thomas', time: '12:00-12:59PM', days: 'Tuesday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 8, name: 'James Washington', time: '4:00-4:59PM', days: 'Friday, Saturday, Sunday', dates: 'September 1 - November 28, 2024', country: 'Sweden' }
+                ],
+                TOEFL: [
+                    { id: 9, name: 'Jane Cook', time: '9:00 - 9:59AM', days: 'Monday, Wednesday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 10, name: 'Michelle Watkins', time: '2:00-2:59PM', days: 'Wednesday, Thursday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 11, name: 'Mike Thomas', time: '12:00-12:59PM', days: 'Tuesday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 12, name: 'James Washington', time: '4:00-4:59PM', days: 'Friday, Saturday, Sunday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 13, name: 'Jane Cook', time: '9:00 - 9:59AM', days: 'Monday, Wednesday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 14, name: 'Michelle Watkins', time: '2:00-2:59PM', days: 'Wednesday, Thursday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 15, name: 'Mike Thomas', time: '12:00-12:59PM', days: 'Tuesday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 16, name: 'James Washington', time: '4:00-4:59PM', days: 'Friday, Saturday, Sunday', dates: 'September 1 - November 28, 2024', country: 'Sweden' }
+                ],
+                IELTS: [
+                    { id: 17, name: 'Jane Cook', time: '9:00 - 9:59AM', days: 'Monday, Wednesday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 18, name: 'Michelle Watkins', time: '2:00-2:59PM', days: 'Wednesday, Thursday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 19, name: 'Mike Thomas', time: '12:00-12:59PM', days: 'Tuesday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 20, name: 'James Washington', time: '4:00-4:59PM', days: 'Friday, Saturday, Sunday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 21, name: 'Jane Cook', time: '9:00 - 9:59AM', days: 'Monday, Wednesday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 22, name: 'Michelle Watkins', time: '2:00-2:59PM', days: 'Wednesday, Thursday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 23, name: 'Mike Thomas', time: '12:00-12:59PM', days: 'Tuesday, Friday', dates: 'September 1 - November 28, 2024', country: 'Sweden' },
+                    { id: 24, name: 'James Washington', time: '4:00-4:59PM', days: 'Friday, Saturday, Sunday', dates: 'September 1 - November 28, 2024', country: 'Sweden' }
+                ]
+            }
+        });
+        
+    }
+
+    handleRowClick = (course, teacherId) => (event) => {
+        event.preventDefault();
+        this.setState((prevState) => {
+            const { selectedTeachers } = prevState;
+            const courseTeachers = selectedTeachers[course] || [];
+            if (courseTeachers.includes(teacherId)) {
+                return {
+                    selectedTeachers: {
+                        ...selectedTeachers,
+                        [course]: courseTeachers.filter((id) => id !== teacherId),
+                    },
+                };
+            } else {
+                return {
+                    selectedTeachers: {
+                        ...selectedTeachers,
+                        [course]: [teacherId],
+                    },
+                };
+            }
+        });
+    }
+
+
+  /* Form handlers */
 
   handleInputChange = (e) => {
     e.preventDefault();
@@ -355,7 +682,7 @@ export default class InstitutionSignup extends React.Component {
   }
 
   validateForm = (e) => {
-    var flag = true;
+      var flag = true;
     if(this.state.phone === "" || typeof this.state.phone === "undefined"){
       document.getElementById("phone").style.borderColor = "red";
       document.getElementById("phone").style.boxShadow = "2px 3px 3px 7px #FFCCCC";
@@ -437,7 +764,7 @@ export default class InstitutionSignup extends React.Component {
           this.state.startDate = this.state.startDate + "-20";
         }
       }
-      console.log("`notcome");
+      //console.log("`notcome");
     }
     // if(this.state.all === 1 && this.state.reading === 1 && this.state.writing === 1 && this.state.speaking === 1 && this.state.listening === 1){
     //   document.getElementById("prepCheck").style.borderColor = "red";
@@ -490,6 +817,12 @@ export default class InstitutionSignup extends React.Component {
     bodyFormData.append('writing', this.state.writing);
     bodyFormData.append('speaking', this.state.speaking);
     bodyFormData.append('listening', this.state.listening);
+    bodyFormData.append('coursename',this.state.coursename);
+    
+    bodyFormData.append('noofclass',this.state.noofclass);
+    bodyFormData.append('noofstudents',this.state.noofstudents);
+    bodyFormData.append('courseperiods',this.state.courseperiods);
+
     axios({
         method: "post",
         url:  configData.SERVER_URL + 'register/college',
@@ -526,7 +859,7 @@ export default class InstitutionSignup extends React.Component {
             button: "ok",
           },
           function(){ 
-              document.getElementById("informationsection").style.display = "block";
+              document.getElementById("informationSection").style.display = "block";
               document.getElementById("loader").style.display = "none";
           });
       })
@@ -537,15 +870,33 @@ export default class InstitutionSignup extends React.Component {
     document.getElementById(e.currentTarget.id).style.boxShadow = "";
   }
 
-  backBtnInfo = (e) => {
-      document.getElementById("pricing").style.display = "block";
-      document.getElementById("information").classList.remove("progressactive");
-      document.getElementById("informationsection").style.display = "none";
-      document.getElementById("backBtnInfo").style.display = "none";
-  }
-
+  
   render() {
-    const { DataisLoaded, items, selectArray, selectArrayStudents } = this.state;
+      const { coursesall,items, selectedTeachers, selectedCourseData, selectArray,teacherwithcourse } = this.state;
+      console.log('Items:', this.state.selectedCourse); 
+      const getTime=(dateString)=>{
+        const date = new Date(dateString);
+        const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+
+        return date.toLocaleTimeString('en-US', options);
+      }
+     const  preprocessTeachers = (teachers) => {
+        const teacherMap = teachers.reduce((acc, teacher) => {
+          const { teacherid, agenda, ...rest } = teacher;
+          const timeSlot = `${getTime(agenda.slots.starttime)} - ${getTime(agenda.slots.endtime)}`;
+          if (!acc[teacherid]) {
+            acc[teacherid] = { ...rest, teacherid, timeSlots: [], days: [] };
+          }
+          console.log(acc)
+          acc[teacherid].timeSlots.push(timeSlot);
+          acc[teacherid].days.push(agenda.days.day);
+          return acc;
+        }, {});
+    
+        return Object.values(teacherMap);
+      };
+      const preprocessedTeachers = preprocessTeachers(teacherwithcourse);
+console.log(preprocessedTeachers)
     return (
       <div className="App">
         <header className="App-header">
@@ -554,115 +905,204 @@ export default class InstitutionSignup extends React.Component {
           </div>
         <section className="progressbar-section background">
           <ul id="progressbar">
-              <li className="progressactive" id="packages"><strong>Packages</strong></li>
-              <li id="price"><strong>Plans & Pricing</strong></li>
+              <li id="packages"><strong>Packages</strong></li>
+              <li id="courses"><strong>Courses & Pricing</strong></li>
               <li id="information"><strong>Institution Information</strong></li>
               <li id="confirm"><strong>Finish</strong></li>
           </ul>
         </section>
-        <section id="pricing" className="pricing">
-          <div className="container">
-            <div className="section-title background p-3" data-aos="zoom-out">
-              <p>Plans & Pricing</p>
-            </div>
-            <a href="/institutionSignup" className="previous round" id="backBtnId"><i className="fa fa-arrow-circle-left fa-2x icon-cog"></i></a>
-            <div className="row scroll" id="timing">
-              {this.state.avaliablePackagesMonths.map((avaliablePackagesMonth) => ( 
-                <div className="col-lg-3 col-md-3 mt-6 mt-lg-0 size" id="selectPackageOne">
-                  <div className="box price" onClick={this.getPackages} id={avaliablePackagesMonth.timing}>
-                    <h3>{avaliablePackagesMonth.timing} Months Packages</h3>
-                    <div className="btn-wrap">
-                      <a className="btn-buy">Select</a>
+                <section id="packagesSection" className="pricing" data-progress="packages">
+            <div className="container">
+                <a href="/institutionSignup" className="previous round">
+                    <i className="fa fa-arrow-circle-left fa-2x icon-cog"></i>
+                </a>
+                <div className="row scroll" id="timing">
+                        <div  className="col-lg-3 col-md-3 mt-6 mt-lg-0" id="selectPackageOne">
+                            <div className="course-box price">
+                                <h3>Create your own course</h3>
+                                <ul style={{ textAlign: 'left' }}>
+                                    <li>- 50 hours (valid up to 12 months)</li>
+                                    <li>- Use your own teachers</li>
+                                    <li>- Up to 8 students per class</li>
+                                    <li>- Use all On Lang features available</li>
+                                </ul>
+                                <br />
+                                <div className="btn-wrap">
+                                    <button className="btn-buy" onClick={this.handlePriceClick} id="1">Select</button>
+                                </div>
+                            </div>
+                        </div>
+                    <div className="col-lg-3 col-md-3 mt-6 mt-lg-0 " id="selectPackageTwo">
+                        <div className="course-box price " >
+                            <h3>Buy Courses</h3>
+                            <h6>Select your courses</h6>
+                            <ToggleButtonGroup
+                            style={{
+                              overflowX:'scroll',
+                              width:'100%'
+                              
+                            }} 
+                                type='checkbox'
+                                className="course-button-container"
+                                value={this.state.selectedCourse}
+                                onChange={this.handleCourseChange}
+                            >
+                                {coursesall.filter(a=>a.course.descriptions!=='created by user').map((item, index) => (
+                                    <ToggleButton key={index} id={`tbg-btn-${index}`} value={item} className="btn-course">
+                                        {item.course.coursename}
+                                    </ToggleButton>
+                                ))}
+                            </ToggleButtonGroup>
+                            <div className="btn-wrap">
+                                <button className="btn-buy" onClick={this.getCourses} id="12">Select</button>
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </div>
-              ))}
-            </div>
-            <div className="row scroll" id="packages">
-
-              {items.map((item) => ( 
-
-                <div className="col-lg-3 col-md-6 mt-4 mt-lg-0 size">
-                  <div className="box price" onClick={item.status == 0 ? this.clickPrice : this.packageFull} id={item.packageid+"_price"}>
-                    <h3>{item.course.coursename} <br/><span style={{fontSize:"14px"}}> ({item.course.accent.accentname} Accent)</span></h3>
-                    <h4><sup>$</sup>{item.packageprice}<span> / max {item.timing} month</span></h4>
-                    <ul>
-                      <li>{item.noofstudent} Students Max</li>
-                      <li>{item.noofclases} Classes (1 Hour Each)</li>
-                      <li>Features</li>
-                      <li>
-                      <table className="table table-bordered">
-                        {item.feature1 !== "" ? 
-                          <tr>
-                            <td className="table-cell">{item.feature1}</td>
-                            <td><i className="fas fa-check"></i></td>
-                          </tr> : null
-                        }
-                        {item.feature2 !== "" ? 
-                          <tr>
-                            <td className="table-cell">{item.feature2}</td>
-                            <td><i className="fas fa-check"></i></td>
-                          </tr> : null
-                        }
-                        {item.feature3 !== "" ? 
-                          <tr>
-                            <td className="table-cell">{item.feature3}</td>
-                            <td><i className="fas fa-check"></i></td>
-                          </tr> : null
-                        }
-                        {item.feature4 !== "" ? 
-                          <tr>
-                            <td className="table-cell">{item.feature4}</td>
-                            <td><i className="fas fa-check"></i></td>
-                          </tr> : null
-                        }
-                        {item.feature5 !== "" ? 
-                          <tr>
-                            <td className="table-cell">{item.feature5}</td>
-                            <td><i className="fas fa-check"></i></td>
-                          </tr> : null
-                        }
-                        {item.feature6 !== "" ? 
-                          <tr>
-                            <td className="table-cell">{item.feature6}</td>
-                            <td><i className="fas fa-check"></i></td>
-                          </tr> : null
-                        }
-                        {item.feature7 !== "" ? 
-                          <tr>
-                            <td className="table-cell">{item.feature7}</td>
-                            <td><i className="fas fa-check"></i></td>
-                          </tr> : null
-                        }
-                        {item.feature8 !== "" ? 
-                          <tr>
-                            <td className="table-cell">{item.feature8}</td>
-                            <td><i className="fas fa-check"></i></td>
-                          </tr> : null
-                        }
-                        
-                      </table>
-                      </li>
-                    </ul>
-
-                    <div className="btn-wrap">
-                      {item.status == 0 ? 
-                        (<button className="form-control btn btn-outline-warning">Select</button>)
-                       : 
-                       (<button className="form-control btn btn-outline-secondary">Full</button>)
-                     }
-                    </div>
-                  </div>
-                </div>
-                ))
-              }
-
-            </div>
-
-          </div>
+             </div>
         </section>
-        <section id="informationsection" className="pricing">
-          <button onClick={this.backBtnInfo} className="previous round button-Next" id="backBtnInfo"><i className="fa fa-arrow-circle-left fa-2x icon-cog"></i></button>
+           
+                <section id="coursesSection" className="pricing" data-progress="courses">
+                    <a href="/institutionSignup" className="previous round button-Next" ><i className="fa fa-arrow-circle-left fa-2x icon-cog"></i></a>
+                    <div className="row scroll">
+                            {this.state.selectedCourse.map((item) => (
+                                <div className="col-lg-3 col-md-6 mt-4 mt-lg-0">
+                                    <div className="package-box price" onClick={item.status == 0 ? this.handlePriceClick : this.packageFull} id={item.packageid + "_price"}>
+                                        <h3>{item.course.coursename} <br /><span style={{ fontSize: "14px" }}></span></h3>
+                                        <h4><sup>$</sup>{item.packageprice}<span> / max {item.timing} month</span></h4>
+                                        <ul>
+                                            <li>{item.noofstudent} Students Max</li>
+                                            <li>{item.noofclases} Classes (1 Hour Each)</li>
+                                            <li>Features</li>
+                                            <li>
+                                                <table className="table table-bordered">
+                                                    {item.feature1 !== "" ?
+                                                        <tr>
+                                                            <td className="table-cell">{item.feature1}</td>
+                                                            <td><i className="fas fa-check"></i></td>
+                                                        </tr> : null
+                                                    }
+                                                    {item.feature2 !== "" ?
+                                                        <tr>
+                                                            <td className="table-cell">{item.feature2}</td>
+                                                            <td><i className="fas fa-check"></i></td>
+                                                        </tr> : null
+                                                    }
+                                                    {item.feature3 !== "" ?
+                                                        <tr>
+                                                            <td className="table-cell">{item.feature3}</td>
+                                                            <td><i className="fas fa-check"></i></td>
+                                                        </tr> : null
+                                                    }
+                                                    {item.feature4 !== "" ?
+                                                        <tr>
+                                                            <td className="table-cell">{item.feature4}</td>
+                                                            <td><i className="fas fa-check"></i></td>
+                                                        </tr> : null
+                                                    }
+                                                    {item.feature5 !== "" ?
+                                                        <tr>
+                                                            <td className="table-cell">{item.feature5}</td>
+                                                            <td><i className="fas fa-check"></i></td>
+                                                        </tr> : null
+                                                    }
+                                                    {item.feature6 !== "" ?
+                                                        <tr>
+                                                            <td className="table-cell">{item.feature6}</td>
+                                                            <td><i className="fas fa-check"></i></td>
+                                                        </tr> : null
+                                                    }
+                                                    {item.feature7 !== "" ?
+                                                        <tr>
+                                                            <td className="table-cell">{item.feature7}</td>
+                                                            <td><i className="fas fa-check"></i></td>
+                                                        </tr> : null
+                                                    }
+                                                    {item.feature8 !== "" ?
+                                                        <tr>
+                                                            <td className="table-cell">{item.feature8}</td>
+                                                            <td><i className="fas fa-check"></i></td>
+                                                        </tr> : null
+                                                    }
+                                                </table>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                        <a href="/institutionSignup" className="btn-buy">Back</a>
+                        <button className="btn-buy" onClick={this.getTeachers} id="1">Next</button> 
+                        
+                    </div>
+                </section>           
+                        
+                <section id="teachersSection" className="pricing" data-progress="courses"> 
+         <button onClick={this.handleBackButtonClick} className="previous round button-Next" ><i className="fa fa-arrow-circle-left fa-2x icon-cog"></i></button>
+            {this.state.selectedCourse.map(course => (
+                <div key={course.course.courseid} className="row scroll" id={`packages-${course.course.courseid}`}>
+                    <div className="col-lg-3 col-md-6 mt-4 mt-lg-0">
+                        <div className="teachers-box price">
+                            <h3>Please select your {course.course.coursename} teacher</h3>
+                            <div className="scrollable-table">
+                                <table id="teachers">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Time Available</th>
+                                            <th>Days Available</th>
+                                            <th>Country</th>
+                                        </tr>
+                                    </thead>
+                                   {preprocessedTeachers.length>0?  <tbody>
+                                        {preprocessedTeachers.map(teacher => (
+                                            <tr
+                                                key={teacher.teacherid}
+                                                className={this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid) ? 'selected' : ''}
+                                                onClick={() => {
+                                                  const isSelected = this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid);
+                                                  if (isSelected) {
+                                                    console.log(isSelected)
+                                                    this.setState({
+                                                      selectedTeachers: this.state.selectedTeachers.filter(a => a.teacherid !== teacher.teacherid)
+                                                    });
+                                                  } else {
+                                                    this.setState({
+                                                      selectedTeachers: [...this.state.selectedTeachers, teacher]
+                                                    });
+                                                  }
+                                                }}
+                                            >
+                                                <td>{teacher.firstname+' '+teacher.lastname}</td>
+                                                <td>{teacher.timeSlots.join(', ')}</td>
+                                                <td>{teacher.days.join(', ')}</td>
+                                                <td>{teacher.country}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody> :  <tbody>
+                                       <h1>No Teachers Available</h1>
+                                    </tbody>}
+                                </table>
+                            </div>
+                                            
+                        </div>
+                                        
+                    </div>
+                                    
+                </div>
+            ))}                        
+            {selectedTeachers.length > 0 && (
+                <div className="teachers-box">
+                            <div className="btn-wrap-next">
+                                <button onClick={this.handleBackButtonClick} className="btn-buy">Back </button>
+                        <button className="btn-buy" onClick={this.handlePriceClick} id="1">Next</button>
+                    </div>
+                </div>
+            )}
+        </section>
+
+                <section id="informationSection" className="pricing" data-progress="information">
+                    <button onClick={this.handleBackButtonClick} className="previous round button-Next" ><i className="fa fa-arrow-circle-left fa-2x icon-cog"></i></button>
           <div className="container">
             <div className="col-lg-12 col-md-12 mt-6 mt-lg-0">
                 <div className="box price featured">
@@ -722,13 +1162,30 @@ export default class InstitutionSignup extends React.Component {
                          <Form.Label>Country</Form.Label>
                           <Form.Control type="text" placeholder="Country" value={this.state.country} readOnly/>
                         </Form.Group>
-                        <Form.Group className="mb-3" controlId="noOfPackages">
+                        {/* <Form.Group className="mb-3" controlId="noOfPackages">
                           <Form.Label>No of Packages (select) <span className="red">*</span></Form.Label>
                           <Form.Select aria-label="No Of Packages" onChange={this.handleInputChange}>
                             {selectArray.map((item) => ( 
                               <option value={item}>{item}</option>
                               ))}
                           </Form.Select>
+                        </Form.Group> */}
+                      
+                        <Form.Group className="mb-3" controlId="countrycode">
+                         <Form.Label>No of Students <span className="red">*</span></Form.Label>
+                          <Form.Control  value={this.state.noofstudents} onChange={(e)=>{
+                          this.setState({
+                            noofstudents:e.target.value
+                          });
+                         }}  type="number" placeholder="No of Students"    />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="countrycode">
+                         <Form.Label>Course Period (Months) <span className="red">*</span></Form.Label>
+                          <Form.Control value={this.state.courseperiods} onChange={(e)=>{
+                          this.setState({
+                            courseperiods:e.target.value
+                          });
+                         }}  type="number" placeholder="Course Period (Months)"    />
                         </Form.Group>
                       </div>
 
@@ -750,7 +1207,31 @@ export default class InstitutionSignup extends React.Component {
                          <Form.Label>Country Code</Form.Label>
                           <Form.Control type="text" placeholder="Country Code"  value={this.state.countrycode}  readOnly/>
                         </Form.Group>
-                        
+                        <Form.Group className="mb-3" controlId="countrycode">
+                         <Form.Label>Course Name<span className="red">*</span></Form.Label>
+                         <Form.Control type="text" value={this.state.coursename} onChange={(e)=>{
+                          this.setState({
+                            coursename:e.target.value
+                          });
+                         }} placeholder="Course Name"    />
+
+
+                                        </Form.Group>
+                                        <Form.Group className="mb-3" hidden controlId="countrycode">
+                         <Form.Label>Course Description<span className="red">*</span></Form.Label>
+                         <Form.Control  type="text" placeholder="Course Description"  value={'course created by institute'}   />
+
+
+                                        </Form.Group>
+                         
+                        <Form.Group className="mb-3" controlId="countrycode">
+                         <Form.Label>No of Classes <span className="red">*</span></Form.Label>
+                          <Form.Control value={this.state.noofclass} onChange={(e)=>{
+                          this.setState({
+                            noofclass:e.target.value
+                          });
+                         }}   type="number" placeholder="No of Classes"    />
+                        </Form.Group>
                       </div>
 
                       <div className="col-lg-12 col-md-12 mt-6 mt-lg-0">
@@ -816,7 +1297,7 @@ export default class InstitutionSignup extends React.Component {
                   </Form>
                   <div className="btn-wrap-next">
 
-                    <a href="/institutionSignup" className="btn-buy" id="backBtnId">Back </a>
+                                    <button onClick = {this.handleBackButtonClick} className="btn-buy">Back </button>
                     <button type="submit" className="btn-buy button-Next" onClick={this.validateForm}>Next</button>
                   </div>
                 </div>
@@ -830,7 +1311,7 @@ export default class InstitutionSignup extends React.Component {
                 <div className="box price featured">
                     <h3>Finish</h3>
                     <div className="information-card center">
-                      <img id="tick" alt="On Lang" src="https://staging.onlang.net/Images/tick.svg" animated_src="https://staging.onlang.net/Images/tick.gif" width="360" height="360" auto_play="1" rubbable="1"></img>
+                      <img id="tick" alt="On Lang" src="https://www.onlang.net/Images/tick.svg" animated_src="https://www.onlang.net/Images/tick.gif" width="360" height="360" auto_play="1" rubbable="1"></img>
                       <h6 className="thankyou-message">Thanks for filling out our form! We've sent you an email at the email address you provided.</h6>
                     </div>
                     <div className="btn-wrap">

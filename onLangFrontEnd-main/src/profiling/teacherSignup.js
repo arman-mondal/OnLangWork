@@ -1,14 +1,14 @@
+import './profiling.css';
 import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useState } from 'react';
+import { Form, Card, Badge } from 'react-bootstrap';
+import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import axios from "axios";
-import React from "react";
 import Loader from "react-js-loader";
-import { Form, Card, Badge } from "react-bootstrap";
 import swal from "sweetalert";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import PlacesAutocomplete, {
-  geocodeByAddress,
-} from "react-places-autocomplete";
+import PlacesAutocomplete, { geocodeByAddress } from "react-places-autocomplete";
 import configData from "../config.json";
 
 export default class TeacherSignup extends React.Component {
@@ -26,17 +26,18 @@ export default class TeacherSignup extends React.Component {
       city: "",
       country: "",
       university: 0,
-      accent: 0,
+      accent: 13,
       colleges: [],
       accents: [],
-      DataisLoaded: false,
-      gmapsLoaded: false,
+      //DataisLoaded: false,
+      //gmapsLoaded: false,
       attachment1: "",
       attachment2: "",
       attachment3: "",
       attachment4: "",
       courses: [],
       selectedCourses: [],
+      selectedTopics: []
     };
   }
 
@@ -188,7 +189,12 @@ export default class TeacherSignup extends React.Component {
     this.setState({
       [e.target.id]: e.target.value,
     });
-  };
+    };
+
+    handleTopicChange = (selectedTopics) => {
+        // Update the selected topics in the state
+        this.setState({ selectedTopics });
+    };
 
   submit = (e) => {
     var flag = true;
@@ -417,7 +423,10 @@ export default class TeacherSignup extends React.Component {
               color={"#ffffff"}
               size={100}
             />
-          </div>
+                </div>
+
+                                    {/*** Form Field Inputs ***/}
+
           <section className="pricing">
             <div className="container">
               <div className="col-lg-12 col-md-12 mt-6 mt-lg-0">
@@ -530,33 +539,11 @@ export default class TeacherSignup extends React.Component {
                               )}
                             </PlacesAutocomplete>
                           )}
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="accent">
-                          <Form.Label>
-                            Please select your accent{" "}
-                            <span className="red">*</span>
-                          </Form.Label>
-                          {this.state.accents.map((item) => {
-                            return (
-                              <>
-                                <Form.Check
-                                  type="radio"
-                                  // aria-label=""
-                                  label={item?.accentname}
-                                  name={"accentRadio"}
-                                  onChange={(e) => {
-                                    this.handleInputChange(e);
-                                    console.log(e.currentTarget.checked);
-                                  }}
-                                  value={item.accentid}
-                                  defaultChecked={
-                                    this.state.accent === item?.accentid
-                                  }
-                                ></Form.Check>
-                              </>
-                            );
-                          })}
-                        </Form.Group>
+                         </Form.Group>
+
+                                    {/* Accent Selection */}
+
+                     
                         {/* <Form.Group className="mb-3" controlId="university">
                           <Form.Label>Are you teaching in any of the following institution? <span className="red">*</span></Form.Label>
                           <Form.Select aria-label="School name/ University name" onChange={this.handleInputChange}>
@@ -625,21 +612,46 @@ export default class TeacherSignup extends React.Component {
                         </Form.Group> */}
                       </div>
                     </div>
+
+                                    {/* Topic Selection */}
+
+                    <div>
+                        <h5 className="text-center mb-4">
+                            Please choose the topics you can teach<span className="red">*</span>
+                        </h5>
+                        <ToggleButtonGroup
+                            type="radio"
+                            name="topics"
+                            className="topic-button-container"
+                            value={this.state.selectedTopic}
+                            onChange={this.handleTopicChange}
+                        >
+                            <ToggleButton id="tbg-btn-1" value="AI" className="topic-button">
+                                AI
+                            </ToggleButton>
+                            <ToggleButton id="tbg-btn-2" value="TOEFL" className="topic-button">
+                                TOEFL
+                            </ToggleButton>
+                            <ToggleButton id="tbg-btn-3" value="IELTS" className="topic-button">
+                                IELTS
+                            </ToggleButton>
+                        </ToggleButtonGroup>
+                    </div>
+
+
+                                    {/* Course Selection */}
+
                     <div
                       id="prepCheck"
-                      className="row d-flex align-items-center justify-content-center"
-                    >
-                      <h5 className="text-center">
-                        Please select the course you can teach for (more than
-                        one choice possible)<span className="red">*</span>
-                      </h5>
+                      className="row d-flex align-items-center justify-content-center">
+                      <h5 className="text-center mb-4">Please select the course you can teach for (more than one choice possible)<span className="red">*</span></h5>
                       <div className="col-lg-5 col-md-5 mb-3">
-                        <ul class="list-group">
-                          <li class="list-group-item selectliHead">
+                        <ul className="list-group">
+                          <li className="list-group-item selectliHead">
                             <strong>Available Courses</strong>
                           </li>
                         </ul>
-                        <ul class="list-group selectbox">
+                        <ul className="list-group selectbox">
                           {this.state.selectedCourses.map((selectedCourse) => (
                             <li
                               className="list-group-item list-group-item-secondary"
@@ -647,13 +659,11 @@ export default class TeacherSignup extends React.Component {
                             >
                               <div className="selectInnerDiv">
                                 <div className="studentInfo">
-                                  {selectedCourse.coursename} (
-                                  {selectedCourse.accent.accentname} Accent)
-                                </div>
+                                  {selectedCourse.coursename}                                 </div>
                                 <div className="badgeInfo">
                                   <Badge bg="light">
                                     <i
-                                      class="fa fa-check fa-2xs"
+                                      className="fa fa-check fa-2xs"
                                       aria-hidden="true"
                                     ></i>
                                   </Badge>
@@ -664,22 +674,21 @@ export default class TeacherSignup extends React.Component {
                           {this.state.courses
                             .filter(
                               (mycourse) =>
-                                mycourse.accent.accentid == this.state.accent
+                                mycourse.accent.accentid == this.state.accent && mycourse.description!=='created by user'
                             )
                             .map((course) => (
                               <li
-                                class="list-group-item list-group-item-secondary"
+                                className="list-group-item list-group-item-secondary"
                                 onClick={(e) => this.selectCourse(course)}
                               >
                                 <div className="selectInnerDiv">
                                   <div className="studentInfo">
-                                    {course.coursename} (
-                                    {course.accent.accentname} Accent)
+                                    {course.coursename} 
                                   </div>
                                   <div className="badgeInfo">
                                     <Badge bg="light">
                                       <i
-                                        class="fa fa-check fa-2xs text-light"
+                                        className="fa fa-check fa-2xs text-light"
                                         aria-hidden="true"
                                       ></i>
                                     </Badge>
@@ -696,8 +705,8 @@ export default class TeacherSignup extends React.Component {
                         ></i>
                       </div>
                       <div className="col-lg-5 col-md-5 mb-3">
-                        <ul class="list-group">
-                          <li class="list-group-item selectliHead">
+                        <ul className="list-group">
+                          <li className="list-group-item selectliHead">
                             <strong>Selected Courses</strong>
                           </li>
                         </ul>
@@ -707,43 +716,20 @@ export default class TeacherSignup extends React.Component {
                               className="list-group-item list-group-item-secondary"
                               onClick={(e) => this.removeCourse(selectedCourse)}
                             >
-                              {selectedCourse.coursename} (
-                              {selectedCourse.accent.accentname} Accent)
-                            </li>
+                              {selectedCourse.coursename}                             </li>
                           ))}
                         </ul>
                       </div>
-                    </div>
+                     </div>
+
+                                    {/*** Teaching Certificate ***/}
+
                     <div className="col-lg-12 col-md-12 mt-6 mt-lg-0 align-left">
                       <Form.Group className="mb-3" controlId="attachment1">
                         <Form.Label>
-                          Please attach your teaching certificate(s) (up to 4
-                          attachments)<span className="red">*</span>
+                          Please provide your teaching certificate
+                          attachment<span className="red">*</span>
                         </Form.Label>
-                        <Form.Control
-                          type="file"
-                          required
-                          onChange={this.onFileChange}
-                          accept=".pdf, .jpg, .jpeg"
-                        />
-                      </Form.Group>
-                      <Form.Group className="mb-3" controlId="attachment2">
-                        <Form.Control
-                          type="file"
-                          required
-                          onChange={this.onFileChange}
-                          accept=".pdf, .jpg, .jpeg"
-                        />
-                      </Form.Group>
-                      <Form.Group className="mb-3" controlId="attachment3">
-                        <Form.Control
-                          type="file"
-                          required
-                          onChange={this.onFileChange}
-                          accept=".pdf, .jpg, .jpeg"
-                        />
-                      </Form.Group>
-                      <Form.Group className="mb-3" controlId="attachment4">
                         <Form.Control
                           type="file"
                           required

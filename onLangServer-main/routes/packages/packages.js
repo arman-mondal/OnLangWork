@@ -17,7 +17,7 @@ router.post("/", urlencodedParser, async(req, res) => {
 				NOT : {
 					status : 2
 				},
-				timing : parseInt(req.body.packages)
+				// timing : parseInt(req.body.packages)
 			}
 		},
 		include : {

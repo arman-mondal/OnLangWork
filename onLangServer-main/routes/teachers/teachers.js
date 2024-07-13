@@ -33,6 +33,56 @@ router.get("/getall", urlencodedParser, async (req, res) => {
   }
 });
 
+
+router.post("/getcourseteacher", urlencodedParser, async (req, res) => {
+  const courseId = req.body.courseId;
+  console.log(courseId)
+  const teachers = await prisma.teachercourses.findMany({
+    where: {
+      courseid:parseInt(courseId)
+      },
+   
+  });
+const data=[];
+  if(teachers.length>0){
+    await Promise.all(teachers.map(async (a) => {
+      const agenda = await prisma.agenda.findMany({
+        where: {
+          status: 0,
+          teacherid: a.teacherid,
+        },
+        include: {
+          slots: true,
+          days: true,
+        },
+      });
+      data.push(agenda);
+    }));
+  }
+  else{
+   return res.json({
+      code: 201,
+      message: "No teacher Found",
+    });
+  }
+ const mainData=  []
+ data.forEach((array) => {
+  mainData.push(...array);
+});
+  if (1===1) {
+    res.json({
+      code: 200,
+      message: "Teachers Retrived Successfully",
+      teachers: mainData,
+    });
+  } else {
+    res.json({
+      code: 201,
+      message: "No teacher Found",
+    });
+  }
+});
+
 router.get("/getteacher", urlencodedParser, async (req, res) => {
   const teacher = await prisma.teacher.findMany({
     where: { jwt: req.headers.authtoken },
