@@ -12,12 +12,12 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require("fs");
 const app = express();
-var key = fs.readFileSync("ssl/private.key");
-var cert = fs.readFileSync("ssl/certificate.crt");
+var key = fs.readFileSync("ssl/newssl/private.key");
+var cert = fs.readFileSync("ssl/newssl/certificate.crt");
 var options1 = {
   key: key,
   cert: cert,
-  ca: fs.readFileSync("ssl/ca_bundle.crt"),
+  ca: fs.readFileSync("ssl/newssl/ca_bundle.crt"),
 };
 
 /***** Assignment Routes *****/
