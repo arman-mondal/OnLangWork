@@ -1,7 +1,7 @@
 {
   
-  "SERVER_URL": "http://localhost:3003/backend/",
-  "SERVER_URL_ASSETS": "http://localhost:3003/backend/",
+  "SERVER_URL": "https://onlangapi.goalnation.live:3001/backend/",
+  "SERVER_URL_ASSETS": "https://localhost:3003/backend/",
   "SOCKET_SERVER_URL": "https://onlang.net:3002/"
 }
 
