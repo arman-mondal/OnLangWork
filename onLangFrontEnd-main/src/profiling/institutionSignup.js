@@ -881,10 +881,11 @@ axios({
     const preprocessTeachers = (teachers) => {
       console.log(teachers)
       const teacherMap = teachers.reduce((acc, teacher) => {
+        console.log(teacher)
         const { teacherid, agenda, ...rest } = teacher;
         const timeSlot = `${getTime(agenda.slots.starttime)} - ${getTime(agenda.slots.endtime)}`;
         if (!acc[teacherid]) {
-          acc[teacherid] = { ...rest, teacherid, timeSlots: [], days: [], courseId: agenda.courseid }; // Add courseId to teacher object
+          acc[teacherid] = { ...rest, teacherid, timeSlots: [], days: [], courseId: Number(agenda.courseId) }; // Add courseId to teacher object
         }
         console.log(acc)
         acc[teacherid].timeSlots.push(timeSlot);
@@ -1055,23 +1056,22 @@ console.log(coursesall)
                                         </tr>
                                     </thead>
                                    {preprocessedTeachers.length>0?  <tbody>
-                                        {preprocessedTeachers.filter(a=>a.courseid!==course.course.courseid).map(teacher => (
+                                        {preprocessedTeachers.filter(a=>a.courseId==course.course.courseid).map(teacher => (
                                             <tr
                                                 key={teacher.teacherid}
                                                 className={this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid) ? 'selected' : ''}
                                                 onClick={() => {
-                                                  // const isSelected = this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid);
-                                                  // if (isSelected) {
-                                                  //   console.log(isSelected)
-                                                  //   this.setState({
-                                                  //     selectedTeachers: this.state.selectedTeachers.filter(a => a.teacherid !== teacher.teacherid)
-                                                  //   });
-                                                  // } else {
-                                                  //   this.setState({
-                                                  //     selectedTeachers: [...this.state.selectedTeachers, teacher]
-                                                  //   });
-                                                  // }
-                                                  console.log(this.state.teacherwithcourse)
+                                                  const isSelected = this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid);
+                                                  if (isSelected) {
+                                                    console.log(isSelected)
+                                                    this.setState({
+                                                      selectedTeachers: this.state.selectedTeachers.filter(a => a.teacherid !== teacher.teacherid)
+                                                    });
+                                                  } else {
+                                                    this.setState({
+                                                      selectedTeachers: [...this.state.selectedTeachers, teacher]
+                                                    });
+                                                  }
                                                 }}
                                             >
                                                 <td>{teacher.firstname+' '+teacher.lastname}</td>
