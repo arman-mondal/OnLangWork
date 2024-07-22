@@ -35,7 +35,6 @@ router.get("/getall", urlencodedParser, async(req, res) => {
 		})
 	}
 })
-
 router.get("/getteachercourses", urlencodedParser, async(req, res) => {
 	const teacher = await prisma.teacher.findMany({ where : { jwt : req.headers.authtoken }})
 	if(teacher.length > 0){
@@ -72,11 +71,17 @@ router.get("/getteachercourses", urlencodedParser, async(req, res) => {
 				allCourses.push(course)
 			}
 		})
+		const modifiedTeacherCourses = teacherCourses.map(teacherCourse => {
+			return {
+				...teacherCourse,
+				courseid: teacherCourse.course.courseid
+			}
+		})
 		res.json({
 			"code": 200,
 			"message": "Course retrived successfully",
 			"courses": allCourses,
-			"teacherCourses": teacherCourses
+			"teacherCourses": modifiedTeacherCourses
 		})
 	}else{
 		res.json({

@@ -457,14 +457,12 @@ axios({
     /* Buy Class Option */
 
     handleCourseChange = (selectedCourse) => {
-      if(selectedCourse.length>1){
-return
-      }else{
+   
         this.setState({
           selectedCourse: selectedCourse
         });
   
-      }
+      
     };
 
     getTeachers = () => {
@@ -880,23 +878,25 @@ return
 
         return date.toLocaleTimeString('en-US', options);
       }
-     const  preprocessTeachers = (teachers) => {
-        const teacherMap = teachers.reduce((acc, teacher) => {
-          const { teacherid, agenda, ...rest } = teacher;
-          const timeSlot = `${getTime(agenda.slots.starttime)} - ${getTime(agenda.slots.endtime)}`;
-          if (!acc[teacherid]) {
-            acc[teacherid] = { ...rest, teacherid, timeSlots: [], days: [] };
-          }
-          console.log(acc)
-          acc[teacherid].timeSlots.push(timeSlot);
-          acc[teacherid].days.push(agenda.days.day);
-          return acc;
-        }, {});
-    
-        return Object.values(teacherMap);
-      };
+    const preprocessTeachers = (teachers) => {
+      console.log(teachers)
+      const teacherMap = teachers.reduce((acc, teacher) => {
+        const { teacherid, agenda, ...rest } = teacher;
+        const timeSlot = `${getTime(agenda.slots.starttime)} - ${getTime(agenda.slots.endtime)}`;
+        if (!acc[teacherid]) {
+          acc[teacherid] = { ...rest, teacherid, timeSlots: [], days: [], courseId: agenda.courseid }; // Add courseId to teacher object
+        }
+        console.log(acc)
+        acc[teacherid].timeSlots.push(timeSlot);
+        acc[teacherid].days.push(agenda.days.day);
+        return acc;
+      }, {});
+
+      return Object.values(teacherMap);
+    };
       const preprocessedTeachers = preprocessTeachers(teacherwithcourse);
 console.log(preprocessedTeachers)
+console.log(coursesall)
     return (
       <div className="App">
         <header className="App-header">
@@ -947,7 +947,7 @@ console.log(preprocessedTeachers)
                                 value={this.state.selectedCourse}
                                 onChange={this.handleCourseChange}
                             >
-                                {coursesall.filter(a=>a.course.descriptions!=='created by user').map((item, index) => (
+                                {coursesall.filter(a=>a.course.description!=='created by user').map((item, index) => (
                                     <ToggleButton key={index} id={`tbg-btn-${index}`} value={item} className="btn-course">
                                         {item.course.coursename}
                                     </ToggleButton>
@@ -1055,22 +1055,23 @@ console.log(preprocessedTeachers)
                                         </tr>
                                     </thead>
                                    {preprocessedTeachers.length>0?  <tbody>
-                                        {preprocessedTeachers.map(teacher => (
+                                        {preprocessedTeachers.filter(a=>a.courseid!==course.course.courseid).map(teacher => (
                                             <tr
                                                 key={teacher.teacherid}
                                                 className={this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid) ? 'selected' : ''}
                                                 onClick={() => {
-                                                  const isSelected = this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid);
-                                                  if (isSelected) {
-                                                    console.log(isSelected)
-                                                    this.setState({
-                                                      selectedTeachers: this.state.selectedTeachers.filter(a => a.teacherid !== teacher.teacherid)
-                                                    });
-                                                  } else {
-                                                    this.setState({
-                                                      selectedTeachers: [...this.state.selectedTeachers, teacher]
-                                                    });
-                                                  }
+                                                  // const isSelected = this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid);
+                                                  // if (isSelected) {
+                                                  //   console.log(isSelected)
+                                                  //   this.setState({
+                                                  //     selectedTeachers: this.state.selectedTeachers.filter(a => a.teacherid !== teacher.teacherid)
+                                                  //   });
+                                                  // } else {
+                                                  //   this.setState({
+                                                  //     selectedTeachers: [...this.state.selectedTeachers, teacher]
+                                                  //   });
+                                                  // }
+                                                  console.log(this.state.teacherwithcourse)
                                                 }}
                                             >
                                                 <td>{teacher.firstname+' '+teacher.lastname}</td>
