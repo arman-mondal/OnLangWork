@@ -834,6 +834,7 @@ axios({
             document.getElementById("confirm").classList.add("progressactive");
             document.getElementById("finish").style.display = "block";
             document.getElementById("loader").style.display = "none";
+            window.location.href='/'
           }else{
             swal({
               title: "Server Error!",
