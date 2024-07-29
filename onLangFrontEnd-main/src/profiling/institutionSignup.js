@@ -1056,7 +1056,8 @@ console.log(coursesall)
                                             <th>Country</th>
                                         </tr>
                                     </thead>
-                                   {preprocessedTeachers.length>0?  <tbody>
+                                   {preprocessedTeachers.length>0?  
+                                   <tbody>
                                         {preprocessedTeachers.filter(a=>a.courseId==course.course.courseid).map(teacher => (
                                             <tr
                                                 key={teacher.teacherid}
@@ -1075,13 +1076,14 @@ console.log(coursesall)
                                                   }
                                                 }}
                                             >
-                                                <td>{teacher.firstname+' '+teacher.lastname}</td>
-                                                <td>{teacher.timeSlots.join(', ')}</td>
-                                                <td>{teacher.days.join(', ')}</td>
-                                                <td>{teacher.country}</td>
+                                                <td>{teacher?.firstname+' '+teacher?.lastname}</td>
+                                                <td>{teacher?.timeSlots.join(', ')}</td>
+                                                <td>{teacher?.days.join(', ')}</td>
+                                                <td>{teacher?.country}</td>
                                             </tr>
                                         ))}
-                                    </tbody> :  <tbody>
+                                    </tbody> : 
+                                     <tbody>
                                        <h1>No Teachers Available</h1>
                                     </tbody>}
                                 </table>
