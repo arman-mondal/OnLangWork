@@ -1045,9 +1045,9 @@ console.log(coursesall)
          <button onClick={this.handleBackButtonClick} className="previous round button-Next" ><i className="fa fa-arrow-circle-left fa-2x icon-cog"></i></button>
            {this.state.selectedCourse.length>0 && (
             <>
-             {this.state.selectedCourse.map(course => (
+             {this.state.selectedCourse.map((course,key) => (
 
-                <div key={course?.course?.courseid} className="row scroll" id={`packages-${course?.course.courseid}`}>
+                <div key={key} className="row scroll" id={`packages-${course?.course.courseid}`}>
                     <div className="col-lg-3 col-md-6 mt-4 mt-lg-0">
                         <div className="teachers-box price">
                             <h3>Please select your {course.course.coursename} teacher</h3>
