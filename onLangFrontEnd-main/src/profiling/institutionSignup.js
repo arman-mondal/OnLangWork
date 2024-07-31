@@ -467,6 +467,8 @@ axios({
 
     getTeachers = () => {
         const { teachersData, selectedCourse } = this.state;
+        this.getAllCourses()
+      
         const selectedCourseData = {};
         if (selectedCourse.length<=0 ) {
             swal({
@@ -1041,8 +1043,11 @@ console.log(coursesall)
                         
                 <section id="teachersSection" className="pricing" data-progress="courses"> 
          <button onClick={this.handleBackButtonClick} className="previous round button-Next" ><i className="fa fa-arrow-circle-left fa-2x icon-cog"></i></button>
-            {this.state.selectedCourse.map(course => (
-                <div key={course.course.courseid} className="row scroll" id={`packages-${course.course.courseid}`}>
+           {this.state.selectedCourse.length>0 && (
+            <>
+             {this.state.selectedCourse.map(course => (
+
+                <div key={course?.course?.courseid} className="row scroll" id={`packages-${course?.course.courseid}`}>
                     <div className="col-lg-3 col-md-6 mt-4 mt-lg-0">
                         <div className="teachers-box price">
                             <h3>Please select your {course.course.coursename} teacher</h3>
@@ -1070,13 +1075,26 @@ console.log(coursesall)
                                                       selectedTeachers: this.state.selectedTeachers.filter(a => a.teacherid !== teacher.teacherid)
                                                     });
                                                   } else {
-                                                    this.setState({
-                                                      selectedTeachers: [...this.state.selectedTeachers, teacher]
-                                                    });
+                                                    if(this.state.selectedTeachers.filter(a=>a.courseId==course.course.courseid).length>0){
+                                                      swal({
+                                                        title: "Error!",
+                                                        text: "You can only select one teacher per course",
+                                                        icon: "warning",
+                                                        button: "ok",
+                                                    })
+                                                  
+
+                                                    }
+                                                    else{
+                                                      this.setState({
+                                                        selectedTeachers: [...this.state.selectedTeachers, teacher]
+                                                      });
+
                                                   }
+                                                }
                                                 }}
                                             >
-                                                <td>{teacher?.firstname+' '+teacher?.lastname}</td>
+                                                <td>{teacher?.firstname}</td>
                                                 <td>{teacher?.timeSlots.join(', ')}</td>
                                                 <td>{teacher?.days.join(', ')}</td>
                                                 <td>{teacher?.country}</td>
@@ -1095,14 +1113,14 @@ console.log(coursesall)
                                     
                 </div>
             ))}                        
-            {selectedTeachers.length > 0 && (
+            </>)}
                 <div className="teachers-box">
                             <div className="btn-wrap-next">
                                 <button onClick={this.handleBackButtonClick} className="btn-buy">Back </button>
                         <button className="btn-buy" onClick={this.handlePriceClick} id="1">Next</button>
                     </div>
                 </div>
-            )}
+           
         </section>
 
                 <section id="informationSection" className="pricing" data-progress="information">
