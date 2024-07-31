@@ -382,7 +382,7 @@ axios({
 });
 
 }
-    getCourses = (e) => {
+    getCourses =async (e) => {
         if (this.state.selectedCourse == "") {
             swal({
                 title: "No course selected",
@@ -397,7 +397,7 @@ axios({
             var bodyFormData = new URLSearchParams();
             bodyFormData.append('packages', e ? e.currentTarget.id : '');
 
-            axios({
+           await axios({
                 method: "post",
                 url: configData.SERVER_URL + 'packages/',
                 data: bodyFormData,
@@ -465,87 +465,67 @@ axios({
       
     };
 
-    getTeachers = () => {
-        const { teachersData, selectedCourse } = this.state;
-        this.getAllCourses()
-      
-        const selectedCourseData = {};
-        if (selectedCourse.length<=0 ) {
-            swal({
-                title: "No course selected",
-                text: "Please select a course",
-                icon: "warning",
-                button: "ok",
-            })
-        } else { 
-        
-        axios({
-          method: "get",
-          url: configData.SERVER_URL + 'teachers/getall',
-          
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      })
-      .then((res)=>{
-       this.setState({teachers:res.data.teachers})
+    getTeachers = async () => {
+       const { teachersData, selectedCourse } = this.state;
+       await this.getAllCourses();
+     
+       const selectedCourseData = {};
+       if (selectedCourse.length <= 0) {
+        swal({
+         title: "No course selected",
+         text: "Please select a course",
+         icon: "warning",
+         button: "ok",
+        })
+       } else { 
        
-      }) 
-      .catch((err)=>{
+       try {
+      const res = await axios.get(configData.SERVER_URL + 'teachers/getall', {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+      this.setState({ teachers: res.data.teachers });
+       } catch (err) {
+      swal({
+        title: "Error",
+        text: err,
+        icon: "warning",
+        button: "ok",
+      });
+       }
+       
+       for (const course of selectedCourse) {
+      const body = new URLSearchParams();
+      body.append('courseId', course.course.courseid);
+      try {
+        const res = await axios.post(configData.SERVER_URL + 'teachers/getcourseteacher', body, {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        });
+        const agendas = res.data.teachers;
+        const data = agendas.map((a) => {
+          const data = this.state.teachers.filter((b) => b.teacherid === a.teacherid);
+          return {...data[0], agenda: a};
+        });
+        if (data.length > 0) {
+          this.setState({ teacherwithcourse: [...this.state.teacherwithcourse, ...data] });
+        } else {
+          return;
+        }
+      } catch (err) {
         swal({
           title: "Error",
           text: err,
           icon: "warning",
           button: "ok",
-      })
-      })
-           
- selectedCourse.map((course)=>{
-  const body=new URLSearchParams()
-  body.append('courseId',course.course.courseid)
-  axios({
-    method: "post",
-    url: configData.SERVER_URL + 'teachers/getcourseteacher',
-    data:body,
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-})
-.then((res)=>{
-  console.warn(res.data);
-  const agendas = res.data.teachers;
-  const data = agendas.map((a) => {
-    const data = this.state.teachers.filter((b) => b.teacherid === a.teacherid);
-    return {...data[0],agenda:a}
-  });
-  console.warn(data);
-  if (data.length > 0) {
-    this.setState({ teacherwithcourse: [...this.state.teacherwithcourse, ...data] });
-    
-  } else {
-  return
-  }
-
-  // this.state.teachers.map((teacher)=>{
-  //   const data=res.data.teachers[0].filter(a=>a.teacherid===teacher.teacherid);
-  //   console.log(data)
-  // })
-
- 
-}) 
-.catch((err)=>{
-  swal({
-    title: "Error",
-    text: err,
-    icon: "warning",
-    button: "ok",
-})
-}) 
- })           
-             
-            setTimeout(() => {
-                document.getElementById("loader").style.display = "none";
-                this.handleSectionChange("teachersSection");
-            }, 200);
-        }
-    }
-   
+        });
+      }
+       }
+       
+       setTimeout(() => {
+      document.getElementById("loader").style.display = "none";
+      this.handleSectionChange("teachersSection");
+       }, 200);
+     }
+      }
     addStaticTeachers() {
         this.setState({
             teachersData: {
@@ -792,7 +772,7 @@ axios({
     }
   }
 
-  hitRegisterAPI(e){
+  async hitRegisterAPI(e){
     var bodyFormData = new URLSearchParams();
     bodyFormData.append('collegename', this.state.nameOfInstitution);
     bodyFormData.append('collegetype', this.state.typeOfInstitution);
@@ -823,7 +803,7 @@ axios({
     bodyFormData.append('noofstudents',this.state.noofstudents);
     bodyFormData.append('courseperiods',this.state.courseperiods);
 
-    axios({
+   await axios({
         method: "post",
         url:  configData.SERVER_URL + 'register/college',
         data: bodyFormData,
