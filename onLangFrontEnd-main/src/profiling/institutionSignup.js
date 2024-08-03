@@ -1051,8 +1051,7 @@ console.log(coursesall)
                                                 key={teacher.teacherid}
                                                 className={this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid) ? 'selected' : ''}
                                                 onClick={() => {
-                                                  console.log(teacher)
-                                                  return
+                                                
                                                   const isSelected = this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid);
                                                   if (isSelected) {
                                                     console.log(isSelected)
@@ -1060,7 +1059,7 @@ console.log(coursesall)
                                                       selectedTeachers: this.state.selectedTeachers.filter(a => a.teacherid !== teacher.teacherid)
                                                     });
                                                   } else {
-                                                    if(this.state.selectedTeachers.filter(a=>a.courseId==course.course.courseid).length>0){
+                                                    if(this.state.selectedTeachers.filter(a=>a?.course?.courseid==course.course.courseid).length>0){
                                                       swal({
                                                         title: "Error!",
                                                         text: "You can only select one teacher per course",
