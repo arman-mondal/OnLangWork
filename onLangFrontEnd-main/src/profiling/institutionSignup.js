@@ -492,24 +492,21 @@ axios({
         button: "ok",
       });
        }
-       
-       for (const course of selectedCourse) {
+       console.log(this.state.selectedCourse);
       const body = new URLSearchParams();
-      body.append('courseId', course.course.courseid);
+      body.append('selectedCourses', JSON.stringify(this.state.selectedCourse));
       try {
         const res = await axios.post(configData.SERVER_URL + 'teachers/getcourseteacher', body, {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         });
-        const agendas = res.data.teachers;
-        const data = agendas.map((a) => {
-          const data = this.state.teachers.filter((b) => b.teacherid === a.teacherid);
-          return {...data[0], agenda: a};
-        });
-        if (data.length > 0) {
-          this.setState({ teacherwithcourse: [...this.state.teacherwithcourse, ...data] });
-        } else {
-          return;
-        }
+        console.log(res.data)
+        const fsys = res.data.teachers;
+        console.log(fsys)
+        this.setState({
+          teachers:res.data.teachers
+        })
+        
+        // this.setState({ teacherwithcourse: [].concat(fsys) });
       } catch (err) {
         swal({
           title: "Error",
@@ -525,7 +522,7 @@ axios({
       this.handleSectionChange("teachersSection");
        }, 200);
      }
-      }
+      
     addStaticTeachers() {
         this.setState({
             teachersData: {
@@ -870,7 +867,6 @@ axios({
         if (!acc[teacherid]) {
           acc[teacherid] = { ...rest, teacherid, timeSlots: [], days: [], courseId: Number(agenda.courseId) }; // Add courseId to teacher object
         }
-        console.log(acc)
         acc[teacherid].timeSlots.push(timeSlot);
         acc[teacherid].days.push(agenda.days.day);
         return acc;
@@ -1041,13 +1037,22 @@ console.log(coursesall)
                                             <th>Country</th>
                                         </tr>
                                     </thead>
-                                   {preprocessedTeachers.length>0?  
+
+
+                                    {this.state.teachers
+                                  .length>0?  
                                    <tbody>
-                                        {preprocessedTeachers.filter(a=>a.courseId==course.course.courseid).map(teacher => (
+                                        {this.state.teachers
+                                        .filter(teacher => teacher?.course?.courseid == course.courseid)
+                                        .filter(teacher=>teacher?.agenda.length>0)
+
+                                      .map(teacher => (
                                             <tr
                                                 key={teacher.teacherid}
                                                 className={this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid) ? 'selected' : ''}
                                                 onClick={() => {
+                                                  console.log(teacher)
+                                                  return
                                                   const isSelected = this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid);
                                                   if (isSelected) {
                                                     console.log(isSelected)
@@ -1075,10 +1080,38 @@ console.log(coursesall)
                                                 }}
                                             >
                                                 <td>{teacher?.firstname}</td>
-                                                <td>{teacher?.timeSlots.join(', ')}</td>
-                                                <td>{teacher?.days.join(', ')}</td>
-                                                <td>{teacher?.country}</td>
+                                                 <td style={{
+                                           gap:'5px',
+                                         
+                                           width:'auto'
+                                                 }}>{teacher?.agenda?.map((agenda)=>{
+                                                  return(
+                                                    <>
+                                                    {getTime(agenda.slots.starttime) + " - " + getTime(agenda.slots.endtime)+','
+                                                    }
+                                                    
+                                                    </>
+
+                                                  )
+                                                 })}</td>
+                                                  <td style={{
+                                                  gap:'5px',
+                                                  display:'flex',
+                                                  flexDirection:'row',
+                                                  width:'auto'
+                                                 }}>{teacher?.agenda?.map((agenda)=>{
+                                                  return(
+                                                    agenda.days.day+','
+                                                    
+                                                    
+                                                 
+
+                                                  )
+                                                 })}</td>
+                                               <td>{teacher?.country}</td>
                                             </tr>
+                                            
+                                            
                                         ))}
                                     </tbody> : 
                                      <tbody>

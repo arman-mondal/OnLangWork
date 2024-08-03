@@ -35,48 +35,51 @@ router.get("/getall", urlencodedParser, async (req, res) => {
 
 
 router.post("/getcourseteacher", urlencodedParser, async (req, res) => {
-  const courseId = req.body.courseId;
-  console.log(courseId)
-  const teachers = await prisma.teachercourses.findMany({
-    where: {
-      courseid: parseInt(courseId)
-    },
-  });
-  const data = [];
-  if (teachers.length > 0) {
-    await Promise.all(teachers.map(async (a) => {
-      const agenda = await prisma.agenda.findMany({
-        where: {
-          status: 0,
-          teacherid: a.teacherid,
-        },
-        include: {
-          slots: true,
-          days: true,
-        },
-      });
-      data.push(agenda);
-    }));
-  } else {
-    return res.json({
-      code: 201,
-      message: "No teacher Found",
-    });
-  }
-  const mainData = [];
-  data.forEach((array) => {
-    array.forEach((obj) => {
-      obj.courseId = courseId;
-      mainData.push(obj);
-    });
-  });
+  const selectedCourses = JSON.parse(req.body.selectedCourses);
+  const teachersData = [];
 
-  console.log(mainData)
-  if (1 === 1) {
+  await Promise.all(selectedCourses.map(async (courseId) => {
+    const teachers = await prisma.teachercourses.findMany({
+      where: {
+        courseid: parseInt(courseId.course.courseid),
+        teachercoursesstatus: 0,
+      },
+      include: {
+        teacher: {
+          include: {
+            college: true,
+          },
+        },
+      },
+    });
+    console.log(teachers.length)
+   await Promise.all(teachers.map(async(teacher) => {
+    const agenda=await prisma.agenda.findMany({where:{teacherid:teacher.teacher.teacherid},
+    include:{
+      slots:true,
+      days:true
+      
+    }})
+
+      const data={
+        ...teacher.teacher,
+        course: courseId.course,
+        agenda:agenda
+      }
+      console.log(data)
+      teachersData.push(data)
+
+
+    }));
+
+
+  }));
+
+  if (teachersData.length > 0) {
     res.json({
       code: 200,
-      message: "Teachers Retrived Successfully",
-      teachers: mainData,
+      message: "Teachers Retrieved Successfully",
+      teachers: teachersData,
     });
   } else {
     res.json({
