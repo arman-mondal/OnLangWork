@@ -1032,8 +1032,8 @@ console.log(coursesall)
                                     <thead>
                                         <tr>
                                             <th>Name</th>
-                                            <th>Time Available</th>
-                                            <th>Days Available</th>
+                                            <th>Slots Available</th>
+                                
                                             <th>Country</th>
                                         </tr>
                                     </thead>
@@ -1046,13 +1046,13 @@ console.log(coursesall)
                                         .filter(teacher => teacher?.course?.courseid == course.courseid)
                                         .filter(teacher=>teacher?.agenda.length>0)
 
-                                      .map(teacher => (
+                                      .map((teacher,index) => (
                                             <tr
                                                 key={teacher.teacherid}
-                                                className={this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid) ? 'selected' : ''}
+                                                className={this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid && a?.course?.courseid==course.course.courseid) ? 'selected' : ''}
                                                 onClick={() => {
                                                 
-                                                  const isSelected = this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid);
+                                                  const isSelected = this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid && a?.course?.courseid==course.course.courseid);
                                                   if (isSelected) {
                                                     console.log(isSelected)
                                                     this.setState({
@@ -1086,27 +1086,13 @@ console.log(coursesall)
                                                  }}>{teacher?.agenda?.map((agenda)=>{
                                                   return(
                                                     <>
-                                                    {getTime(agenda.slots.starttime) + " - " + getTime(agenda.slots.endtime)+','
-                                                    }
+                                                  <td>  {getTime(agenda.slots.starttime) + " - " + getTime(agenda.slots.endtime)+'\n'+agenda.days.day}</td>
                                                     
                                                     </>
 
                                                   )
                                                  })}</td>
-                                                  <td style={{
-                                                  gap:'5px',
-                                                  display:'flex',
-                                                  flexDirection:'row',
-                                                  width:'auto'
-                                                 }}>{teacher?.agenda?.map((agenda)=>{
-                                                  return(
-                                                    agenda.days.day+','
-                                                    
-                                                    
-                                                 
-
-                                                  )
-                                                 })}</td>
+                                            
                                                <td>{teacher?.country}</td>
                                             </tr>
                                             
