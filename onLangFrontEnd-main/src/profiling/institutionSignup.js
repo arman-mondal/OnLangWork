@@ -1056,7 +1056,7 @@ console.log(coursesall)
                                                   if (isSelected) {
                                                     console.log(isSelected)
                                                     this.setState({
-                                                      selectedTeachers: this.state.selectedTeachers.filter(a => a.teacherid !== teacher.teacherid)
+                                                      selectedTeachers: this.state.selectedTeachers.filter(a => a.teacherid !== teacher.teacherid && a?.course?.courseid!==course.course.courseid)
                                                     });
                                                   } else {
                                                     if(this.state.selectedTeachers.filter(a=>a?.course?.courseid==course.course.courseid).length>0){
