@@ -1052,11 +1052,19 @@ console.log(coursesall)
                                                 className={this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid && a?.course?.courseid==course.course.courseid) ? 'selected' : ''}
                                                 onClick={() => {
                                                 
-                                                  const isSelected = this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid && a?.course?.courseid==course.course.courseid);
+                                                  const isSelected = this.state.selectedTeachers.some(a => a.teacherid === teacher.teacherid && a?.course?.courseid==course?.course.courseid);
                                                   if (isSelected) {
                                                     console.log(isSelected)
+                                                    console.log(selectedTeachers)
+                                                    console.log(teacher)
+                                                    console.log(this.state.selectedTeachers.filter(a => a?.teacherid !== teacher?.teacherid ))
+                                                    const tid=(teacher?.teacherid)
+                                                    const tcid=(teacher?.course?.courseid)
+                                                    const cid=(course.course.courseid)
                                                     this.setState({
-                                                      selectedTeachers: this.state.selectedTeachers.filter(a => a.teacherid !== teacher.teacherid && a?.course?.courseid!==course.course.courseid)
+                                                      selectedTeachers: this.state.selectedTeachers
+                                                      .filter(a => a?.course?.courseid!==cid)
+                                                     
                                                     });
                                                   } else {
                                                     if(this.state.selectedTeachers.filter(a=>a?.course?.courseid==course.course.courseid).length>0){
