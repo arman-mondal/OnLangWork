@@ -192,8 +192,9 @@ export default class TeacherSignup extends React.Component {
     };
 
     handleTopicChange = (selectedTopics) => {
-        // Update the selected topics in the state
-        this.setState({ selectedTopics });
+      this.setState({
+        selectedTopics: selectedTopics,
+      })
     };
 
   submit = (e) => {
@@ -676,6 +677,7 @@ export default class TeacherSignup extends React.Component {
                               (mycourse) =>
                                 mycourse.accent.accentid == this.state.accent && mycourse.description!=='created by user'
                             )
+                            .filter(course=>course.coursename===this.state.selectedTopics)
                             .map((course) => (
                               <li
                                 className="list-group-item list-group-item-secondary"

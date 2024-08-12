@@ -1,6 +1,8 @@
 /*--------------------------------------------------------------
 # Sections General
 --------------------------------------------------------------*/
+
+
 section {
   padding: 10px 0;
   overflow: hidden;
@@ -53,9 +55,121 @@ hr {
   color: #2a2c39;
 }
 
+.headline{
+    padding-bottom:15px;
+    text-align:center;
+}
+.sub-headline {
+    font-size: 18px;
+    font-weight: 600;
+    margin-right:10px;
+    font-family: "Poppins", sans-serif;
+}
+
+
+
+#periodSelectSection h5 {
+    margin-bottom: 10px;
+}
+
+.section-select-days {
+    overflow-x: hidden; 
+}
+
+/*** date picker ***/
+.datepicker-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 9999;
+}
+
+.date-picker {
+    margin: 0 10px;
+}
+.datepicker-dropdown {
+    margin-bottom: 100px;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    width: 150px;
+    outline: none;
+    cursor: pointer;
+}
+
+/*** toggle button group ***/
+
+.day-button-container {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.day-button {
+    margin-right: 15px;
+    margin-bottom: 15px;
+    background-color: #FCD21C;
+    border-color: lightgray;
+    border-width: 1px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    color: black; 
+    border-radius: 5%;
+}
+
+.day-button.on {
+    background-color: #005FAB;
+    color: black;
+}
+
+.day-button.off {
+    background-color: #FCD21C;
+    color: lightgrey;
+}
+
+.day-button:hover {
+    background-color: #005FAB; 
+    border-color: darkgrey;
+    color: black;
+}
+.day-button:focus {
+        
+}
+.day-button:active{
+        
+}
+.day-button:hover {
+    background-color: #005FAB;
+    border-color: grey;      
+}
+
+
+/*** day/time selection ***/
+
+.time-pair-container {
+    display: flex;
+    justify-content:center; 
+    width: 100%; 
+}
+
+.time-pair{
+
+}
+
+.time-dropdown {
+    cursor: pointer;
+    width: 250px;
+}
+
+/*.row.justify-content-center {
+    text-align: center; 
+}*/
+
+
 /*--------------------------------------------------------------
 # Pricing
 --------------------------------------------------------------*/
+
 .pricing .box {
   padding: 20px;
   background: #fff;
@@ -136,6 +250,7 @@ hr {
   background: #FCD21C;
   display: inline-block;
   padding: 8px 35px 10px 35px;
+  border: 1px solid lightgray;
   border-radius: 50px;
   color: #fff;
   transition: none;
@@ -144,13 +259,10 @@ hr {
   font-family: "Raleway", sans-serif;
   font-weight: 600;
   transition: 0.3s;
+  margin: 0px 3px 0px 3px;
 }
 
-.pricing .btn-buy:hover {
-  background: #fff;
-  color: #777777;
-  border: solid 1px #FCD21C;
-}
+
 
 .pricing .featured {
   border: 2px solid #FCD21C;
@@ -310,11 +422,12 @@ hr {
 .thankyou-message{
   font-weight: 500;
 }
-.button-Next{
-  border: 0px;
+/*.button-Next{
+  border: 1px;
+  border-color:black;
   margin-left: 1% !important;
   background: transparent;
-}
+}*/
 
 @keyframes fadeInAnimation {
     0% {
