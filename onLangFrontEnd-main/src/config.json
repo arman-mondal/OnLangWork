@@ -1,7 +1,7 @@
 {
   
-  "SERVER_URL": "https://test.goalnation.live:3001/backend/",
-  "SERVER_URL_ASSETS": "https://test.goalnation.live:3001/backend/",
+  "SERVER_URL": "https://onlangtest.centralindia.cloudapp.azure.com/backend/",
+  "SERVER_URL_ASSETS": "https://onlangtest.centralindia.cloudapp.azure.com/backend/",
   "SOCKET_SERVER_URL": "https://onlang.net:3002/"
 }
 
