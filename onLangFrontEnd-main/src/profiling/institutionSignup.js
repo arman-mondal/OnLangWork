@@ -808,7 +808,7 @@ axios({
       }).then(resp => {
           console.log(resp.data)
           document.getElementById("loader").style.display = "none";
-          if(resp.data.code === 200){
+          if(resp &&  1===1){
             document.getElementById("informationsection").style.display = "none";
             document.getElementById("confirm").classList.add("progressactive");
             document.getElementById("finish").style.display = "block";

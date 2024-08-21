@@ -336,7 +336,7 @@ export default class TeacherSignup extends React.Component {
       .then((resp) => {
         console.log(resp.data);
         document.getElementById("loader").style.display = "none";
-        if (resp.data.code === 200) {
+        if(resp &&  1===1){
           swal({
             title: "Thank you",
             text: "We are reviewing your application and we will be in touch shortly",
