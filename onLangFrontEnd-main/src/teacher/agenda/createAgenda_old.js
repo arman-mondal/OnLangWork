@@ -149,6 +149,8 @@ export default class CreateAgenda extends React.Component{
     const savedToken = localStorage.getItem('loginToken');
     var bodyFormData = new URLSearchParams();
     bodyFormData.append('selectedSlots', JSON.stringify(this.state.selectedSlots));
+    console.log(this.state.selectedSlots)
+    return
     axios({
         method: "post",
         url: configData.SERVER_URL + 'teachers/createagenda',

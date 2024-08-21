@@ -140,6 +140,18 @@ export default class CreateAgenda extends React.Component {
             });
             return;
         }
+        const selectedSlots = [];
+        this.state.selectedDays.forEach((day,i) => {
+            const slot = this.state.slots[i]
+            
+                selectedSlots.push({ day, slot });
+            
+        });
+
+        this.setState({
+            selectedSlots: selectedSlots
+        });
+
         console.log("Selected Days:", this.state.selectedDays);
         console.log("Navigating to summaryViewSection");
         document.getElementById("periodSelectSection").style.display = "none";
@@ -156,6 +168,7 @@ export default class CreateAgenda extends React.Component {
         const savedToken = localStorage.getItem('loginToken');
         var bodyFormData = new URLSearchParams();
         bodyFormData.append('selectedSlots', JSON.stringify(this.state.selectedSlots));
+        console.log("Selected Slots:", this.state.selectedSlots);
         axios({
             method: "post",
             url: configData.SERVER_URL + 'teachers/createagenda',
@@ -336,6 +349,7 @@ export default class CreateAgenda extends React.Component {
                                                     const slotId = this.state.dayTimeSlots[selectedDay.id];
                                                     const slot = this.state.slots.find(slot => slot.slotid == slotId); // Use == for comparison since slotId is a string
                                                     console.log("Slot for", selectedDay.day, ":", slot);
+                                                    
                                                     return (
                                                         <p key={selectedDay.id}>
                                                             {selectedDay.day} {slot ? `${moment(slot.starttime).format('h:mm A')} to ${moment(slot.endtime).format('h:mm A')}` : 'No time selected'}
