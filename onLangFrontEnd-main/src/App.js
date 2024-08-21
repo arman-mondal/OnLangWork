@@ -188,7 +188,7 @@ export default class App extends React.Component {
                   <Route path='/contact' exact component={Contact}/>
                   <Route path='/privacypolicy' component={PrivacyPolicy}/>
                   <Route path='/termsandconditions' component={TermsandConditions}/>
-                  <Route path='/creategroup' render={(routeProps) => (<CreateGroup userLogout={this.userLogout} {...routeProps}/>)} />}/>
+                  <Route path='/creategroup' render={(routeProps) => (<CreateGroup userLogout={this.userLogout} {...routeProps}/>)} />
                   <Route path='/institutionprofile' exact component={InstitutionProfile}/>
                   <Route path='/teacherprofile' exact component={TeacherProfile}/>
                   <Route path='/grouplist' component={GroupList}/>
