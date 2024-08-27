@@ -296,7 +296,7 @@ hitAgendaCreationApi = () => {
         });
 };
 
-render() {
+render() 
     return (
         <div className="App">
             <header className="App-header">
@@ -326,5 +326,4 @@ render() {
             </header>
         </div>
     );
-}
-}
+
