@@ -26,7 +26,9 @@ function generateAccessToken(user) {
 router.post("/college", urlencodedParser, async (req, res) => {
   const startdate = new Date(req.body.startdate);
 
-
+  const teachers=JSON.parse(req.body.selectedTeacher)
+// console.log(teachers)
+// return
   const createPackage=async()=>{
 
     const package=await prisma.packages.create({
@@ -105,6 +107,26 @@ router.post("/college", urlencodedParser, async (req, res) => {
     const package = await prisma.packages.findUnique({
       where: { packageid: pkgId },
     });
+    if(teachers.length>0){
+      teachers.forEach(async(teacher)=>{
+     
+        const teacherCourses=await prisma.teacher.update(
+          {
+            where:{
+              teacherid:teacher.teacherid,
+            },
+            data:{
+              university:user.collegeid,
+              
+              
+
+            }
+          }
+        )
+      }
+      )
+    }
+
     const invoice = await prisma.invoices.create({
       data: {
         collegeid: user.collegeid,

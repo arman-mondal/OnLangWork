@@ -795,10 +795,15 @@ axios({
     bodyFormData.append('speaking', this.state.speaking);
     bodyFormData.append('listening', this.state.listening);
     bodyFormData.append('coursename',this.state.coursename);
+    if(this.state.selectedTeachers.length > 0){
+      bodyFormData.append('selectedTeacher', JSON.stringify(this.state.selectedTeachers));
+    }
+    
     
     bodyFormData.append('noofclass',this.state.noofclass);
     bodyFormData.append('noofstudents',this.state.noofstudents);
     bodyFormData.append('courseperiods',this.state.courseperiods);
+    console.log(this.state.selectedTeachers)
 
    await axios({
         method: "post",

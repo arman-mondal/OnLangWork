@@ -552,6 +552,7 @@ router.post("/updateteacherlogins", urlencodedParser, async (req, res) => {
   }
 });
 
+
 router.post(
   "/uploadimage",
   uploadFile("profileimages/").single("profile"),
