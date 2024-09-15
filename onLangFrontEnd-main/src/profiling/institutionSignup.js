@@ -813,7 +813,7 @@ axios({
       }).then(resp => {
           console.log(resp.data)
           document.getElementById("loader").style.display = "none";
-          if( 1===1){
+         
             document.getElementById("informationsection").style.display = "none";
             document.getElementById("confirm").classList.add("progressactive");
             document.getElementById("finish").style.display = "block";
@@ -830,18 +830,9 @@ axios({
             );
 
 
-          }else{
-            swal({
-              title: "Server Error!",
-              text: "Please try again!",
-              icon: "warning",
-              button: "ok",
-            },
-            function(){ 
-              document.getElementById("informationsection").style.display = "block";
-              document.getElementById("loader").style.display = "none";
-            });
-          }
+         
+          
+          
         })
       .catch(err => {
           console.log(err)
