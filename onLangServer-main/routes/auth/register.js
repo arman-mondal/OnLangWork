@@ -109,7 +109,29 @@ router.post("/college", urlencodedParser, async (req, res) => {
     });
     if(teachers.length>0){
       teachers.forEach(async(teacher)=>{
-     
+        const deleteTeacherWithCourse=await prisma.teachercourses.deleteMany({
+          where:{
+            teacherid:teacher.teacherid
+          }
+        })
+        let mailOptions = {
+          from: "On Lang <info@onlang.net>",
+          to: teacher.email,
+          bcc: "application@onlang.net",
+          subject: "On Lang New Registration",
+          template: "teacherformdone",
+          context: {
+            user: "Teacher",
+          },
+        };
+        mail
+          .sendMail(mailOptions)
+          .then(function (email) {
+            console.log("mail send");
+          })
+          .catch(function (exception) {
+            console.log(exception);
+          });
         const teacherCourses=await prisma.teacher.update(
           {
             where:{

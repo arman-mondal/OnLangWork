@@ -813,12 +813,23 @@ axios({
       }).then(resp => {
           console.log(resp.data)
           document.getElementById("loader").style.display = "none";
-          if(resp &&  1===1){
+          if( 1===1){
             document.getElementById("informationsection").style.display = "none";
             document.getElementById("confirm").classList.add("progressactive");
             document.getElementById("finish").style.display = "block";
             document.getElementById("loader").style.display = "none";
-            window.location.href='/'
+            swal({
+              title: "Registration Successful!",
+              text: "Please login to continue!",
+              icon: "success",
+              button: "ok",
+            })
+            .then((value) => {
+              window.location =  '/'
+            }
+            );
+
+
           }else{
             swal({
               title: "Server Error!",
