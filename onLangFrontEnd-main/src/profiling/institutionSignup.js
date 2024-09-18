@@ -810,8 +810,20 @@ axios({
         url:  configData.SERVER_URL + 'register/college',
         data: bodyFormData,
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      }).then(resp => {
-          console.log(resp.data)
+      })
+      
+      .then(resp => {
+        if(resp &&  1===1){
+          swal({
+            title: "Thank you",
+            text: "We are reviewing your application and we will be in touch shortly",
+            icon: "success",
+            button: "ok",
+          }).then(function () {
+            window.location = "/home";
+          });
+
+        }
           document.getElementById("loader").style.display = "none";
          
             document.getElementById("informationsection").style.display = "none";
@@ -823,11 +835,10 @@ axios({
               text: "Please login to continue!",
               icon: "success",
               button: "ok",
-            })
-            .then((value) => {
-              window.location =  '/'
-            }
-            );
+            });
+
+
+          
 
 
          
