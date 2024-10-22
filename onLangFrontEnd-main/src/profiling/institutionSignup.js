@@ -1056,9 +1056,9 @@ console.log(coursesall)
                                         </tr>
                                     </thead>
 
-
-                                    {this.state.teachers
-                                  .length>0?  
+{this.state.teachers ? 
+<>
+                                    {this.state.teachers.length>0 ?  
                                    <tbody>
                                         {this.state.teachers
                                         .filter(teacher => teacher?.course?.courseid == course.courseid)
@@ -1128,6 +1128,12 @@ console.log(coursesall)
                                      <tbody>
                                        <h1>No Teachers Available</h1>
                                     </tbody>}
+                                    </>
+                                  : <tbody>
+                                  <h1>No Teachers Available</h1>
+                               </tbody>
+
+                                  }
                                 </table>
                             </div>
                                             

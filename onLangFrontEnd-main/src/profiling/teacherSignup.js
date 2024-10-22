@@ -678,26 +678,46 @@ export default class TeacherSignup extends React.Component {
                                 mycourse.accent.accentid == this.state.accent && mycourse.description!=='created by user'
                             )
                             .filter(course=>course.coursename===this.state.selectedTopics)
-                            .map((course) => (
-                              <li
-                                className="list-group-item list-group-item-secondary"
-                                onClick={(e) => this.selectCourse(course)}
-                              >
-                                <div className="selectInnerDiv">
-                                  <div className="studentInfo">
-                                    {course.coursename} 
-                                  </div>
-                                  <div className="badgeInfo">
-                                    <Badge bg="light">
-                                      <i
-                                        className="fa fa-check fa-2xs text-light"
-                                        aria-hidden="true"
-                                      ></i>
-                                    </Badge>
-                                  </div>
-                                </div>
-                              </li>
-                            ))}
+                            .length > 0 ? (
+                              <>
+                                {this.state.courses
+                                  .filter(
+                                    (mycourse) =>
+                                      mycourse.accent.accentid == this.state.accent && mycourse.description!=='created by user'
+                                  )
+                                  .filter(course=>course.coursename===this.state.selectedTopics)
+                                  .map((course) => (
+                                    <li
+                                      className="list-group-item list-group-item-secondary"
+                                      onClick={(e) => this.selectCourse(course)}
+                                    >
+                                      <div className="selectInnerDiv">
+                                        <div className="studentInfo">
+                                          {course.coursename} 
+                                        </div>
+                                        <div className="badgeInfo">
+                                          <Badge bg="light">
+                                            <i
+                                              className="fa fa-check fa-2xs text-light"
+                                              aria-hidden="true"
+                                            ></i>
+                                          </Badge>
+                                        </div>
+                                      </div>
+                                    </li>
+                                  ))}
+                              </>
+                            ) :  <li
+                            className="list-group-item list-group-item-secondary"
+                          >
+                            <div className="selectInnerDiv">
+                              <div className="studentInfo">
+                                No Course Available
+                              </div>
+                            
+                            </div>
+                          </li>}
+                             
                         </ul>
                       </div>
                       <div className="col-lg-1 col-md-1 d-flex align-items-center justify-content-center">
