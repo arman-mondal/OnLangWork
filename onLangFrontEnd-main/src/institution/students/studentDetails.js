@@ -170,14 +170,14 @@ export default class StudentDetails extends React.Component {
                         <Form.Group>
                           <Form.Label>
                             <strong>
-                              { this.state.student.firstname} { this.state.student.lastname}
+                              { this.state?.student?.firstname ?? ''} { this.state?.student?.lastname ?? ''}
                             </strong>
                             <br/>
-                            { this.state.student.email} 
+                            { this.state?.student?.email ?? ''} 
                             <br/>
-                            { this.state.student.phone} 
+                            { this.state?.student?.phone ?? ''} 
                             <br/>
-                            { this.state.student.city} 
+                            { this.state.student?.city ?? ''} 
                           </Form.Label>
                         </Form.Group>
                         {this.state.student.status == 0 ? 
@@ -194,15 +194,15 @@ export default class StudentDetails extends React.Component {
                           <tbody>
                             <tr>
                               <td>Date of Birth</td>
-                              <td>{this.state.student.dateofbirth}</td>
+                              <td>{this.state?.student?.dateofbirth ?? ''}</td>
                             </tr>
                             <tr>
                               <td>Citizenship</td>
-                              <td>{this.state.student.citizenship}</td>
+                              <td>{this.state.student?.citizenship ?? ''}</td>
                             </tr>
                             <tr>
                               <td>Level of Study</td>
-                              <td>{this.state.studylevel.levelname}</td>
+                              <td>{this.state.studylevel?.levelname ?? ''}</td>
                             </tr>
                             <tr>
                               <td>Registered On</td>
